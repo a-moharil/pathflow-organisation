@@ -1,6 +1,6 @@
 # What Organizes in Path-Decomposable Neural Network Architectures: code and result tables
 
-This repository contains the experiment scripts and result tables for the ECML PKDD 2027 Journal Track submission *What Organizes in Path-Decomposable Neural Network Architectures*. The complete results archive, `ECMLPKDD_results_archive.pdf`, reports every experiment in full.
+This repository contains the experiment scripts and result tables for the ECML PKDD 2027 Journal Track submission *What Organizes in Path-Decomposable Neural Network Architectures*. The complete results archive, `ECMLPKDD_results_archive.pdf`, reports auxiliary experiments in full.
 
 The paper studies trained multilayer perceptrons (MLPs) and convolutional networks (CNNs) through a probability measure on their complete input-to-output computational paths. The investigation has three levels:
 
