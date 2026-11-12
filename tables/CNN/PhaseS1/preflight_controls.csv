@@ -1,0 +1,5 @@
+control,partition_rel_error,entropy_abs_error,identity_residual,function_max_abs_error,deficit_abs_error,S_reuse
+tiny_enumeration,1.7979818522084638e-16,0.0,8.881784197001252e-16,,,
+channel_permutation,,0.0,,9.313225746154785e-09,0.0,
+positive_channel_rescaling,,4.585859514349977e-08,,1.6763806343078613e-08,4.585859514349977e-08,
+circular_translation_structural_reuse,,,,,,-1.3322676295501878e-15

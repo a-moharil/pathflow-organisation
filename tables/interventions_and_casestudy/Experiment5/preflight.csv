@@ -1,0 +1,5 @@
+dataset,run_id,condition_index,stratum,fieldA_max_abs_diff_exp5_vs_exp51,image_display_max_abs_diff,fieldA_sum
+fmnist,BENCH__fmnist__C1_taper__sgdm__relu__S00,0,0,1.0408340855860843e-17,0,1
+fmnist,BENCH__fmnist__C1_taper__sgdm__relu__S00,9,9,6.9388939039072284e-18,0,0.99999999999999989
+mpi3d,BENCH__mpi3d__C1_taper__sgdm__relu__S00,0,0,2.7755575615628914e-17,0,0.99999999999999989
+mpi3d,BENCH__mpi3d__C1_taper__sgdm__relu__S00,9,36,5.5511151231257827e-17,0,1

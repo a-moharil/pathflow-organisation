@@ -1,0 +1,22 @@
+# Tables over 50 MB: kept locally and archived on Zenodo, not in git
+large_tables/
+
+# Output folders written by the scripts (checkpoints, caches, figures)
+pathflow_*_results/
+pathflow_*_results_*/
+*.pt
+*.pth
+*.ckpt
+*.tmp
+
+# Python and notebooks
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

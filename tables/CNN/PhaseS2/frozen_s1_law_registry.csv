@@ -1,0 +1,8 @@
+family,metric,median_change,p_holm,positive_fraction,s1_direction,registry_source
+measure_flow,entropy_deficit,2.0389633661519886,1.7763568394002505e-13,0.9583333333333334,1,<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv
+measure_flow,log_eta1,-2.038963366152002,1.7763568394002505e-13,0.0416666666666666,-1,<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv
+measure_flow,log_eta2,-2.542359026951866,1.7763568394002505e-13,0.0416666666666666,-1,<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv
+measure_flow,hidden_mean_occurrence_cv,1.9316953723410548,1.7763568394002505e-13,0.9583333333333334,1,<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv
+measure_flow,hidden_mean_parameter_cv,1.6868488146640803,1.7763568394002505e-13,0.9583333333333334,1,<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv
+sharing,hidden_mean_S_occ,0.6852177328845674,1.0658141036401505e-13,0.9583333333333334,1,<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv
+sharing,hidden_mean_S_param,0.6816195679898375,1.0658141036401505e-13,0.9583333333333334,1,<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv

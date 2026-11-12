@@ -1,0 +1,5 @@
+family,check,max_abs_error,tolerance,passed
+mlp,alpha0_geometry_summary_identity,0.0,5e-06,True
+mlp,alpha0_geometry_covering_identity,0.0,0.0,True
+cnn,alpha0_geometry_summary_identity,1.0088253787898793e-08,5e-06,True
+cnn,alpha0_geometry_covering_identity,0.0,0.0,True

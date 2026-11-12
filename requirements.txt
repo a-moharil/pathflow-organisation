@@ -1,0 +1,13 @@
+# Python >= 3.9 on Linux. Tested with Python 3.9.25 and PyTorch 2.8.0 (CUDA 12.8).
+# Install the PyTorch build matching your CUDA version from https://pytorch.org if needed.
+numpy
+scipy>=1.7
+pandas
+matplotlib
+scikit-learn
+torch
+torchvision
+tqdm
+# Used by MLP S1 (SMAC architecture search); MLP S2 imports them when present.
+smac>=2.0
+ConfigSpace

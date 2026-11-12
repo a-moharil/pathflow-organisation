@@ -1,0 +1,9 @@
+law,metric,n_valid,consistency_fraction
+eta1_contracts,eta1_fold,576,1.0
+eta2_contracts,eta2_fold,528,1.0
+entropy_deficit_increases,entropy_deficit_delta,576,1.0
+edge_cv_increases,edge_cv_delta,576,1.0
+node_cv_increases,node_cv_delta,576,1.0
+xi50_contracts,xi50_fold,576,1.0
+local_delta_negative,local_delta_median,576,0.9913194444444444
+d_star_softens,d_star_delta,576,0.7881944444444444

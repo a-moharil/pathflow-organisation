@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this code or these tables, please cite the paper and this archive."
+title: "What Organizes in Path-Decomposable Neural Network Architectures: code and result tables"
+type: software
+authors:
+  - family-names: "[FAMILY NAME]"
+    given-names: "[GIVEN NAMES]"
+    affiliation: "[AFFILIATION]"
+  - family-names: "[FAMILY NAME]"
+    given-names: "[GIVEN NAMES]"
+    affiliation: "[AFFILIATION]"
+license: MIT
+version: "1.0.0"
+date-released: "2027-01-31"
+repository-code: "https://github.com/[ACCOUNT]/[REPOSITORY]"
+# doi: "10.5281/zenodo.[ID]"   # add after the Zenodo release
+keywords:
+  - path measure
+  - neural network organisation
+  - explainability
+  - AutoML

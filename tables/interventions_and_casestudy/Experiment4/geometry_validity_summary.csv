@@ -1,0 +1,17 @@
+dataset,environment,geometry_state,n_states,geometry_computed_fraction,xi50_bracketed_fraction,deff_supported_fraction,scaling_credible_fraction,quotient_ks_defined_fraction,retention_defined_fraction
+fmnist,clean,baseline,162,1.0,1.0,1.0,0.9259259259259259,1.0,1.0
+fmnist,clean,matched,162,1.0,1.0,1.0,0.9444444444444444,1.0,1.0
+fmnist,clean,realized,162,1.0,1.0,1.0,0.8765432098765432,1.0,1.0
+fmnist,clean,structural,162,1.0,1.0,1.0,0.9012345679012346,1.0,1.0
+fmnist,shifted,baseline,162,1.0,1.0,1.0,0.9320987654320988,1.0,1.0
+fmnist,shifted,matched,162,1.0,1.0,1.0,0.9259259259259259,1.0,1.0
+fmnist,shifted,realized,162,1.0,1.0,1.0,0.8827160493827161,1.0,1.0
+fmnist,shifted,structural,162,1.0,1.0,1.0,0.9135802469135802,1.0,1.0
+mpi3d,clean,baseline,162,1.0,1.0,1.0,0.6790123456790124,0.8888888888888888,1.0
+mpi3d,clean,matched,162,1.0,1.0,1.0,0.6790123456790124,0.8888888888888888,1.0
+mpi3d,clean,realized,162,1.0,1.0,1.0,0.7345679012345679,0.8888888888888888,1.0
+mpi3d,clean,structural,162,1.0,1.0,1.0,0.6604938271604939,0.8888888888888888,1.0
+mpi3d,shifted,baseline,162,1.0,1.0,1.0,0.8765432098765432,0.8950617283950617,1.0
+mpi3d,shifted,matched,162,1.0,1.0,1.0,0.8580246913580247,0.8950617283950617,1.0
+mpi3d,shifted,realized,162,1.0,1.0,1.0,0.845679012345679,0.8888888888888888,1.0
+mpi3d,shifted,structural,162,1.0,1.0,1.0,0.8641975308641975,0.8888888888888888,1.0

@@ -1,0 +1,11 @@
+{
+  "path_tilt_max_abs_error": 1.1102230246251565e-16,
+  "gauge_flow_max_abs_error": 1.1102230246251565e-16,
+  "gauge_eta_max_abs_error": 1.6653345369377348e-16,
+  "edge_conservation_error": 2.220446049250313e-16,
+  "node_conservation_error": 1.1102230246251565e-16,
+  "finite_entropy_identity_residual": 8.055937861239926e-11,
+  "kl_p1_p0": 0.0010353575126690034,
+  "kl_p0_p1": 0.0010102527099191422,
+  "passed": true
+}

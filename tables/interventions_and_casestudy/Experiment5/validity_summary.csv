@@ -1,0 +1,13 @@
+dataset,environment,state,n,baseline_defined_fraction,post_defined_fraction,induced_degeneracy_fraction
+fmnist,clean,baseline,810,1.0,1.0,0.0
+fmnist,clean,occurrence,810,1.0,1.0,0.0
+fmnist,clean,parameter,810,1.0,1.0,0.0
+fmnist,shifted,baseline,810,1.0,1.0,0.0
+fmnist,shifted,occurrence,810,1.0,1.0,0.0
+fmnist,shifted,parameter,810,1.0,1.0,0.0
+mpi3d,clean,baseline,810,1.0,1.0,0.0
+mpi3d,clean,occurrence,810,1.0,1.0,0.0
+mpi3d,clean,parameter,810,1.0,1.0,0.0
+mpi3d,shifted,baseline,810,1.0,1.0,0.0
+mpi3d,shifted,occurrence,810,1.0,1.0,0.0
+mpi3d,shifted,parameter,810,1.0,1.0,0.0

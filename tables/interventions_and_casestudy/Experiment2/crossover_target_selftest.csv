@@ -1,0 +1,6 @@
+check,error,tolerance,passed
+equal_budget,0.0,0.0,True
+disjoint_targets,0.0,0.0,True
+A_sign,0.0,0.0,True
+B_sign,0.0,0.0,True
+nonzero_budget,0.0,0.0,True

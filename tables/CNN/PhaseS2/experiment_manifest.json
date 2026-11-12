@@ -1,0 +1,166 @@
+{
+  "study": "CNN-S2 Environment-Wide Structural Disposition",
+  "profile": "publication_colab",
+  "structural_object": "O_CNN^S=(G_exec_tilde,Gamma_exec,p^S;rho)",
+  "architecture_panel_n": 12,
+  "sentinel_n": 4,
+  "environment_discovery": {
+    "initial": 36,
+    "sobol": 34,
+    "canonical_anchors": 2,
+    "rfsmac": 24,
+    "total": 60,
+    "epochs": 80,
+    "state_grid": [
+      0,
+      5,
+      20,
+      80
+    ]
+  },
+  "environment_panel_n": 24,
+  "full_matrix": {
+    "environments": 24,
+    "architectures": 12,
+    "seeds": [
+      0,
+      1
+    ],
+    "intended_runs": 576,
+    "epochs": 360,
+    "state_grid": [
+      0,
+      1,
+      2,
+      5,
+      10,
+      20,
+      40,
+      80,
+      120,
+      160,
+      240,
+      360
+    ],
+    "geometry_grid": [
+      0,
+      80,
+      160,
+      360
+    ],
+    "dense_sentinel_geometry_grid": [
+      0,
+      20,
+      40,
+      80,
+      120,
+      160,
+      240,
+      360
+    ]
+  },
+  "fixed": {
+    "task": "synthetic spatial scalar regression",
+    "activation": "relu",
+    "optimizer": "adam",
+    "learning_rate": 0.003,
+    "resolution": 16,
+    "batch_size": 256,
+    "weight_decay": 0.0
+  },
+  "environment_coordinates": [
+    "teacher_family",
+    "informative_fraction",
+    "spatial_correlation",
+    "snr",
+    "interaction_strength",
+    "localization"
+  ],
+  "rfsmac_acquisition": {
+    "uncertainty": 0.3,
+    "environment_novelty": 0.25,
+    "structural_novelty": 0.25,
+    "architecture_environment_disagreement": 0.2,
+    "random_interleave": 0.25,
+    "heldout_performance_used": false
+  },
+  "statistics": {
+    "planned": [
+      "frozen S1 sign-law replication",
+      "balanced A/E/AxE variance components + separate residual",
+      "temporal variance decomposition",
+      "cross-environment architecture-rank universality",
+      "two-stage finite scaling"
+    ],
+    "posthoc": [
+      "environment-level Spearman after A/seed aggregation",
+      "teacher-family Kruskal-Wallis + epsilon2 and conditional pairwise tests",
+      "structural-functional environment bridge"
+    ]
+  },
+  "frozen_s1_laws": [
+    {
+      "family": "measure_flow",
+      "metric": "entropy_deficit",
+      "median_change": 2.0389633661519886,
+      "p_holm": 1.7763568394002505e-13,
+      "positive_fraction": 0.9583333333333334,
+      "s1_direction": 1,
+      "registry_source": "<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv"
+    },
+    {
+      "family": "measure_flow",
+      "metric": "log_eta1",
+      "median_change": -2.038963366152002,
+      "p_holm": 1.7763568394002505e-13,
+      "positive_fraction": 0.0416666666666666,
+      "s1_direction": -1,
+      "registry_source": "<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv"
+    },
+    {
+      "family": "measure_flow",
+      "metric": "log_eta2",
+      "median_change": -2.542359026951866,
+      "p_holm": 1.7763568394002505e-13,
+      "positive_fraction": 0.0416666666666666,
+      "s1_direction": -1,
+      "registry_source": "<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv"
+    },
+    {
+      "family": "measure_flow",
+      "metric": "hidden_mean_occurrence_cv",
+      "median_change": 1.9316953723410548,
+      "p_holm": 1.7763568394002505e-13,
+      "positive_fraction": 0.9583333333333334,
+      "s1_direction": 1,
+      "registry_source": "<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv"
+    },
+    {
+      "family": "measure_flow",
+      "metric": "hidden_mean_parameter_cv",
+      "median_change": 1.6868488146640803,
+      "p_holm": 1.7763568394002505e-13,
+      "positive_fraction": 0.9583333333333334,
+      "s1_direction": 1,
+      "registry_source": "<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv"
+    },
+    {
+      "family": "sharing",
+      "metric": "hidden_mean_S_occ",
+      "median_change": 0.6852177328845674,
+      "p_holm": 1.0658141036401505e-13,
+      "positive_fraction": 0.9583333333333334,
+      "s1_direction": 1,
+      "registry_source": "<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv"
+    },
+    {
+      "family": "sharing",
+      "metric": "hidden_mean_S_param",
+      "median_change": 0.6816195679898375,
+      "p_holm": 1.0658141036401505e-13,
+      "positive_fraction": 0.9583333333333334,
+      "s1_direction": 1,
+      "registry_source": "<PROJECT_ROOT>/compress/sprime/BCANw_reference_fit/path_flow/autoDl_search/128_G/CNN_S_C/structural/S2/planned_architecture_change_inference.csv"
+    }
+  ]
+}

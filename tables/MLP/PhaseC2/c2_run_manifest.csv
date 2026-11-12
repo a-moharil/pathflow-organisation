@@ -1,0 +1,673 @@
+c2_config_id,config_id,hidden_widths,hidden_depth,realized_parameters,morphology,environment_id,seed_index,task,optimizer,learning_rate,longitudinal,study_arm,activation,run_id
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_688afa01ae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_688afa01ae__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_688afa01ae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_688afa01ae__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_688afa01ae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_688afa01ae__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_688afa01ae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_688afa01ae__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_883939ad68,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_883939ad68__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_883939ad68,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_883939ad68__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_883939ad68,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_883939ad68__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_883939ad68,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_883939ad68__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_3a50fad741,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_3a50fad741__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_3a50fad741,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_3a50fad741__S00__regression__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_3a50fad741,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_3a50fad741__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_3a50fad741,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_3a50fad741__S00__classification__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_3a50fad741,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_3a50fad741__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_3a50fad741,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_3a50fad741__S01__regression__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_3a50fad741,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_3a50fad741__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_3a50fad741,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_3a50fad741__S01__classification__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_29771ea439,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_29771ea439__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_29771ea439,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_29771ea439__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_29771ea439,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_29771ea439__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_29771ea439,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_29771ea439__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_bb17535e3d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_bb17535e3d__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_bb17535e3d,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_bb17535e3d__S00__regression__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_bb17535e3d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_bb17535e3d__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_bb17535e3d,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_bb17535e3d__S00__classification__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_bb17535e3d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_bb17535e3d__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_bb17535e3d,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_bb17535e3d__S01__regression__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_bb17535e3d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_bb17535e3d__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_bb17535e3d,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_bb17535e3d__S01__classification__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_0e2693c444,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_0e2693c444__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_0e2693c444,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_0e2693c444__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_0e2693c444,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_0e2693c444__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_0e2693c444,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_0e2693c444__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_1cae9eb68a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_1cae9eb68a__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_1cae9eb68a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_1cae9eb68a__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_1cae9eb68a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_1cae9eb68a__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_1cae9eb68a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_1cae9eb68a__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_14f4d6c786,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_14f4d6c786__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_14f4d6c786,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_14f4d6c786__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_14f4d6c786,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_14f4d6c786__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_14f4d6c786,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_14f4d6c786__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_668fd92dae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_668fd92dae__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_668fd92dae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_668fd92dae__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_668fd92dae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_668fd92dae__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_668fd92dae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_668fd92dae__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_13f82bc3e6,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_13f82bc3e6__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_13f82bc3e6,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_13f82bc3e6__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_13f82bc3e6,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_13f82bc3e6__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_13f82bc3e6,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_13f82bc3e6__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_93a02f912d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_93a02f912d__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_93a02f912d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_93a02f912d__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_93a02f912d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_93a02f912d__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_93a02f912d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_93a02f912d__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_88ce6aeeb8__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_88ce6aeeb8__S00__regression__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_88ce6aeeb8__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_88ce6aeeb8__S00__classification__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_88ce6aeeb8__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_88ce6aeeb8__S01__regression__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_88ce6aeeb8__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_88ce6aeeb8__S01__classification__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_699cac7506,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_699cac7506__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_699cac7506,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_699cac7506__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_699cac7506,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_699cac7506__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_699cac7506,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_699cac7506__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_a3300f3dab,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_a3300f3dab__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_a3300f3dab,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_a3300f3dab__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_a3300f3dab,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_a3300f3dab__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_a3300f3dab,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_a3300f3dab__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_c4c555564a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_c4c555564a__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_c4c555564a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_c4c555564a__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_c4c555564a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_c4c555564a__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_c4c555564a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_c4c555564a__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_dfbb2fb4eb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_dfbb2fb4eb__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_dfbb2fb4eb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_dfbb2fb4eb__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_dfbb2fb4eb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_dfbb2fb4eb__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_dfbb2fb4eb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_dfbb2fb4eb__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_b7645570bb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_b7645570bb__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_b7645570bb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_b7645570bb__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_b7645570bb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_b7645570bb__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_b7645570bb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_b7645570bb__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_9d87c41f06,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_9d87c41f06__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_9d87c41f06,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_9d87c41f06__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_9d87c41f06,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_9d87c41f06__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_9d87c41f06,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_9d87c41f06__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_52cf0df7df,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_52cf0df7df__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_52cf0df7df,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_52cf0df7df__S00__regression__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_52cf0df7df,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_52cf0df7df__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_52cf0df7df,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_52cf0df7df__S00__classification__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_52cf0df7df,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_52cf0df7df__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_52cf0df7df,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_52cf0df7df__S01__regression__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_52cf0df7df,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_52cf0df7df__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_52cf0df7df,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A00__E_52cf0df7df__S01__classification__tanh
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_8d1e8dec4a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_8d1e8dec4a__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_8d1e8dec4a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_8d1e8dec4a__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_8d1e8dec4a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_8d1e8dec4a__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_8d1e8dec4a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_8d1e8dec4a__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_8792990f0d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_8792990f0d__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_8792990f0d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_8792990f0d__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_8792990f0d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_8792990f0d__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_8792990f0d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_8792990f0d__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_1bb2012e1e,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_1bb2012e1e__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_1bb2012e1e,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_1bb2012e1e__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_1bb2012e1e,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_1bb2012e1e__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_1bb2012e1e,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_1bb2012e1e__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_14a8724a71,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_14a8724a71__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_14a8724a71,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_14a8724a71__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_14a8724a71,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_14a8724a71__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_14a8724a71,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_14a8724a71__S01__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_251da47d97,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_251da47d97__S00__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_251da47d97,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_251da47d97__S00__classification__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_251da47d97,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_251da47d97__S01__regression__relu
+C2A00,A00,"[340, 77, 340]",3,63580,bottleneck,E_251da47d97,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A00__E_251da47d97__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_688afa01ae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_688afa01ae__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_688afa01ae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_688afa01ae__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_688afa01ae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_688afa01ae__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_688afa01ae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_688afa01ae__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_883939ad68,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_883939ad68__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_883939ad68,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_883939ad68__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_883939ad68,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_883939ad68__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_883939ad68,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_883939ad68__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_3a50fad741,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_3a50fad741__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_3a50fad741,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_3a50fad741__S00__regression__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_3a50fad741,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_3a50fad741__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_3a50fad741,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_3a50fad741__S00__classification__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_3a50fad741,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_3a50fad741__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_3a50fad741,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_3a50fad741__S01__regression__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_3a50fad741,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_3a50fad741__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_3a50fad741,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_3a50fad741__S01__classification__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_29771ea439,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_29771ea439__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_29771ea439,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_29771ea439__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_29771ea439,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_29771ea439__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_29771ea439,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_29771ea439__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_bb17535e3d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_bb17535e3d__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_bb17535e3d,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_bb17535e3d__S00__regression__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_bb17535e3d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_bb17535e3d__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_bb17535e3d,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_bb17535e3d__S00__classification__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_bb17535e3d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_bb17535e3d__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_bb17535e3d,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_bb17535e3d__S01__regression__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_bb17535e3d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_bb17535e3d__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_bb17535e3d,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_bb17535e3d__S01__classification__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_0e2693c444,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_0e2693c444__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_0e2693c444,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_0e2693c444__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_0e2693c444,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_0e2693c444__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_0e2693c444,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_0e2693c444__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_1cae9eb68a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_1cae9eb68a__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_1cae9eb68a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_1cae9eb68a__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_1cae9eb68a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_1cae9eb68a__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_1cae9eb68a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_1cae9eb68a__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_14f4d6c786,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_14f4d6c786__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_14f4d6c786,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_14f4d6c786__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_14f4d6c786,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_14f4d6c786__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_14f4d6c786,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_14f4d6c786__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_668fd92dae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_668fd92dae__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_668fd92dae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_668fd92dae__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_668fd92dae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_668fd92dae__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_668fd92dae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_668fd92dae__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_13f82bc3e6,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_13f82bc3e6__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_13f82bc3e6,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_13f82bc3e6__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_13f82bc3e6,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_13f82bc3e6__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_13f82bc3e6,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_13f82bc3e6__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_93a02f912d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_93a02f912d__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_93a02f912d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_93a02f912d__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_93a02f912d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_93a02f912d__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_93a02f912d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_93a02f912d__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_88ce6aeeb8__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_88ce6aeeb8__S00__regression__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_88ce6aeeb8__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_88ce6aeeb8__S00__classification__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_88ce6aeeb8__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_88ce6aeeb8__S01__regression__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_88ce6aeeb8__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_88ce6aeeb8__S01__classification__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_699cac7506,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_699cac7506__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_699cac7506,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_699cac7506__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_699cac7506,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_699cac7506__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_699cac7506,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_699cac7506__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_a3300f3dab,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_a3300f3dab__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_a3300f3dab,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_a3300f3dab__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_a3300f3dab,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_a3300f3dab__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_a3300f3dab,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_a3300f3dab__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_c4c555564a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_c4c555564a__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_c4c555564a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_c4c555564a__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_c4c555564a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_c4c555564a__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_c4c555564a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_c4c555564a__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_dfbb2fb4eb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_dfbb2fb4eb__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_dfbb2fb4eb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_dfbb2fb4eb__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_dfbb2fb4eb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_dfbb2fb4eb__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_dfbb2fb4eb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_dfbb2fb4eb__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_b7645570bb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_b7645570bb__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_b7645570bb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_b7645570bb__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_b7645570bb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_b7645570bb__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_b7645570bb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_b7645570bb__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_9d87c41f06,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_9d87c41f06__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_9d87c41f06,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_9d87c41f06__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_9d87c41f06,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_9d87c41f06__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_9d87c41f06,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_9d87c41f06__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_52cf0df7df,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_52cf0df7df__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_52cf0df7df,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_52cf0df7df__S00__regression__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_52cf0df7df,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_52cf0df7df__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_52cf0df7df,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_52cf0df7df__S00__classification__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_52cf0df7df,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_52cf0df7df__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_52cf0df7df,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_52cf0df7df__S01__regression__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_52cf0df7df,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_52cf0df7df__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_52cf0df7df,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A01__E_52cf0df7df__S01__classification__tanh
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_8d1e8dec4a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_8d1e8dec4a__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_8d1e8dec4a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_8d1e8dec4a__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_8d1e8dec4a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_8d1e8dec4a__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_8d1e8dec4a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_8d1e8dec4a__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_8792990f0d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_8792990f0d__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_8792990f0d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_8792990f0d__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_8792990f0d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_8792990f0d__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_8792990f0d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_8792990f0d__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_1bb2012e1e,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_1bb2012e1e__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_1bb2012e1e,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_1bb2012e1e__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_1bb2012e1e,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_1bb2012e1e__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_1bb2012e1e,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_1bb2012e1e__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_14a8724a71,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_14a8724a71__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_14a8724a71,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_14a8724a71__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_14a8724a71,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_14a8724a71__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_14a8724a71,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_14a8724a71__S01__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_251da47d97,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_251da47d97__S00__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_251da47d97,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_251da47d97__S00__classification__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_251da47d97,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_251da47d97__S01__regression__relu
+C2A01,A01,"[127, 105, 88, 73, 61, 51, 42, 35]",8,44274,contracting,E_251da47d97,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A01__E_251da47d97__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_688afa01ae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_688afa01ae__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_688afa01ae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_688afa01ae__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_688afa01ae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_688afa01ae__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_688afa01ae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_688afa01ae__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_883939ad68,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_883939ad68__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_883939ad68,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_883939ad68__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_883939ad68,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_883939ad68__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_883939ad68,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_883939ad68__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_3a50fad741,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_3a50fad741__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_3a50fad741,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_3a50fad741__S00__regression__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_3a50fad741,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_3a50fad741__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_3a50fad741,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_3a50fad741__S00__classification__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_3a50fad741,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_3a50fad741__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_3a50fad741,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_3a50fad741__S01__regression__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_3a50fad741,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_3a50fad741__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_3a50fad741,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_3a50fad741__S01__classification__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_29771ea439,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_29771ea439__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_29771ea439,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_29771ea439__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_29771ea439,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_29771ea439__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_29771ea439,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_29771ea439__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_bb17535e3d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_bb17535e3d__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_bb17535e3d,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_bb17535e3d__S00__regression__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_bb17535e3d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_bb17535e3d__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_bb17535e3d,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_bb17535e3d__S00__classification__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_bb17535e3d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_bb17535e3d__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_bb17535e3d,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_bb17535e3d__S01__regression__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_bb17535e3d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_bb17535e3d__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_bb17535e3d,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_bb17535e3d__S01__classification__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_0e2693c444,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_0e2693c444__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_0e2693c444,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_0e2693c444__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_0e2693c444,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_0e2693c444__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_0e2693c444,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_0e2693c444__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_1cae9eb68a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_1cae9eb68a__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_1cae9eb68a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_1cae9eb68a__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_1cae9eb68a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_1cae9eb68a__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_1cae9eb68a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_1cae9eb68a__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_14f4d6c786,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_14f4d6c786__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_14f4d6c786,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_14f4d6c786__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_14f4d6c786,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_14f4d6c786__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_14f4d6c786,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_14f4d6c786__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_668fd92dae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_668fd92dae__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_668fd92dae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_668fd92dae__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_668fd92dae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_668fd92dae__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_668fd92dae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_668fd92dae__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_13f82bc3e6,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_13f82bc3e6__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_13f82bc3e6,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_13f82bc3e6__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_13f82bc3e6,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_13f82bc3e6__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_13f82bc3e6,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_13f82bc3e6__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_93a02f912d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_93a02f912d__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_93a02f912d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_93a02f912d__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_93a02f912d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_93a02f912d__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_93a02f912d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_93a02f912d__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_88ce6aeeb8__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_88ce6aeeb8__S00__regression__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_88ce6aeeb8__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_88ce6aeeb8__S00__classification__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_88ce6aeeb8__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_88ce6aeeb8__S01__regression__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_88ce6aeeb8__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_88ce6aeeb8__S01__classification__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_699cac7506,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_699cac7506__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_699cac7506,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_699cac7506__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_699cac7506,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_699cac7506__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_699cac7506,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_699cac7506__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_a3300f3dab,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_a3300f3dab__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_a3300f3dab,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_a3300f3dab__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_a3300f3dab,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_a3300f3dab__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_a3300f3dab,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_a3300f3dab__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_c4c555564a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_c4c555564a__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_c4c555564a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_c4c555564a__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_c4c555564a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_c4c555564a__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_c4c555564a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_c4c555564a__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_dfbb2fb4eb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_dfbb2fb4eb__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_dfbb2fb4eb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_dfbb2fb4eb__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_dfbb2fb4eb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_dfbb2fb4eb__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_dfbb2fb4eb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_dfbb2fb4eb__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_b7645570bb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_b7645570bb__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_b7645570bb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_b7645570bb__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_b7645570bb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_b7645570bb__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_b7645570bb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_b7645570bb__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_9d87c41f06,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_9d87c41f06__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_9d87c41f06,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_9d87c41f06__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_9d87c41f06,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_9d87c41f06__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_9d87c41f06,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_9d87c41f06__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_52cf0df7df,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_52cf0df7df__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_52cf0df7df,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_52cf0df7df__S00__regression__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_52cf0df7df,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_52cf0df7df__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_52cf0df7df,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_52cf0df7df__S00__classification__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_52cf0df7df,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_52cf0df7df__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_52cf0df7df,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_52cf0df7df__S01__regression__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_52cf0df7df,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_52cf0df7df__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_52cf0df7df,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A02__E_52cf0df7df__S01__classification__tanh
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_8d1e8dec4a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_8d1e8dec4a__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_8d1e8dec4a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_8d1e8dec4a__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_8d1e8dec4a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_8d1e8dec4a__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_8d1e8dec4a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_8d1e8dec4a__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_8792990f0d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_8792990f0d__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_8792990f0d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_8792990f0d__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_8792990f0d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_8792990f0d__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_8792990f0d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_8792990f0d__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_1bb2012e1e,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_1bb2012e1e__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_1bb2012e1e,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_1bb2012e1e__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_1bb2012e1e,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_1bb2012e1e__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_1bb2012e1e,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_1bb2012e1e__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_14a8724a71,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_14a8724a71__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_14a8724a71,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_14a8724a71__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_14a8724a71,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_14a8724a71__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_14a8724a71,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_14a8724a71__S01__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_251da47d97,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_251da47d97__S00__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_251da47d97,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_251da47d97__S00__classification__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_251da47d97,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_251da47d97__S01__regression__relu
+C2A02,A02,"[91, 91, 91]",3,19565,constant,E_251da47d97,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A02__E_251da47d97__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_688afa01ae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_688afa01ae__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_688afa01ae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_688afa01ae__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_688afa01ae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_688afa01ae__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_688afa01ae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_688afa01ae__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_883939ad68,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_883939ad68__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_883939ad68,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_883939ad68__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_883939ad68,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_883939ad68__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_883939ad68,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_883939ad68__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_3a50fad741,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_3a50fad741__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_3a50fad741,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_3a50fad741__S00__regression__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_3a50fad741,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_3a50fad741__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_3a50fad741,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_3a50fad741__S00__classification__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_3a50fad741,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_3a50fad741__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_3a50fad741,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_3a50fad741__S01__regression__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_3a50fad741,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_3a50fad741__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_3a50fad741,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_3a50fad741__S01__classification__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_29771ea439,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_29771ea439__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_29771ea439,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_29771ea439__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_29771ea439,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_29771ea439__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_29771ea439,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_29771ea439__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_bb17535e3d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_bb17535e3d__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_bb17535e3d,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_bb17535e3d__S00__regression__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_bb17535e3d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_bb17535e3d__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_bb17535e3d,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_bb17535e3d__S00__classification__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_bb17535e3d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_bb17535e3d__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_bb17535e3d,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_bb17535e3d__S01__regression__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_bb17535e3d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_bb17535e3d__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_bb17535e3d,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_bb17535e3d__S01__classification__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_0e2693c444,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_0e2693c444__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_0e2693c444,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_0e2693c444__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_0e2693c444,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_0e2693c444__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_0e2693c444,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_0e2693c444__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_1cae9eb68a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_1cae9eb68a__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_1cae9eb68a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_1cae9eb68a__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_1cae9eb68a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_1cae9eb68a__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_1cae9eb68a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_1cae9eb68a__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_14f4d6c786,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_14f4d6c786__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_14f4d6c786,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_14f4d6c786__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_14f4d6c786,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_14f4d6c786__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_14f4d6c786,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_14f4d6c786__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_668fd92dae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_668fd92dae__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_668fd92dae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_668fd92dae__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_668fd92dae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_668fd92dae__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_668fd92dae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_668fd92dae__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_13f82bc3e6,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_13f82bc3e6__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_13f82bc3e6,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_13f82bc3e6__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_13f82bc3e6,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_13f82bc3e6__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_13f82bc3e6,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_13f82bc3e6__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_93a02f912d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_93a02f912d__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_93a02f912d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_93a02f912d__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_93a02f912d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_93a02f912d__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_93a02f912d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_93a02f912d__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_88ce6aeeb8__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_88ce6aeeb8__S00__regression__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_88ce6aeeb8__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_88ce6aeeb8__S00__classification__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_88ce6aeeb8__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_88ce6aeeb8__S01__regression__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_88ce6aeeb8__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_88ce6aeeb8__S01__classification__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_699cac7506,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_699cac7506__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_699cac7506,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_699cac7506__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_699cac7506,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_699cac7506__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_699cac7506,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_699cac7506__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_a3300f3dab,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_a3300f3dab__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_a3300f3dab,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_a3300f3dab__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_a3300f3dab,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_a3300f3dab__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_a3300f3dab,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_a3300f3dab__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_c4c555564a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_c4c555564a__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_c4c555564a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_c4c555564a__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_c4c555564a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_c4c555564a__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_c4c555564a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_c4c555564a__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_dfbb2fb4eb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_dfbb2fb4eb__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_dfbb2fb4eb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_dfbb2fb4eb__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_dfbb2fb4eb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_dfbb2fb4eb__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_dfbb2fb4eb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_dfbb2fb4eb__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_b7645570bb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_b7645570bb__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_b7645570bb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_b7645570bb__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_b7645570bb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_b7645570bb__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_b7645570bb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_b7645570bb__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_9d87c41f06,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_9d87c41f06__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_9d87c41f06,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_9d87c41f06__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_9d87c41f06,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_9d87c41f06__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_9d87c41f06,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_9d87c41f06__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_52cf0df7df,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_52cf0df7df__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_52cf0df7df,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_52cf0df7df__S00__regression__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_52cf0df7df,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_52cf0df7df__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_52cf0df7df,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_52cf0df7df__S00__classification__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_52cf0df7df,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_52cf0df7df__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_52cf0df7df,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_52cf0df7df__S01__regression__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_52cf0df7df,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_52cf0df7df__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_52cf0df7df,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A03__E_52cf0df7df__S01__classification__tanh
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_8d1e8dec4a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_8d1e8dec4a__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_8d1e8dec4a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_8d1e8dec4a__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_8d1e8dec4a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_8d1e8dec4a__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_8d1e8dec4a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_8d1e8dec4a__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_8792990f0d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_8792990f0d__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_8792990f0d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_8792990f0d__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_8792990f0d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_8792990f0d__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_8792990f0d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_8792990f0d__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_1bb2012e1e,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_1bb2012e1e__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_1bb2012e1e,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_1bb2012e1e__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_1bb2012e1e,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_1bb2012e1e__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_1bb2012e1e,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_1bb2012e1e__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_14a8724a71,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_14a8724a71__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_14a8724a71,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_14a8724a71__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_14a8724a71,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_14a8724a71__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_14a8724a71,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_14a8724a71__S01__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_251da47d97,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_251da47d97__S00__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_251da47d97,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_251da47d97__S00__classification__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_251da47d97,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_251da47d97__S01__regression__relu
+C2A03,A09,"[76, 182, 76]",3,30172,expand_contract,E_251da47d97,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A03__E_251da47d97__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_688afa01ae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_688afa01ae__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_688afa01ae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_688afa01ae__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_688afa01ae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_688afa01ae__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_688afa01ae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_688afa01ae__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_883939ad68,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_883939ad68__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_883939ad68,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_883939ad68__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_883939ad68,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_883939ad68__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_883939ad68,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_883939ad68__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_3a50fad741,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_3a50fad741__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_3a50fad741,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_3a50fad741__S00__regression__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_3a50fad741,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_3a50fad741__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_3a50fad741,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_3a50fad741__S00__classification__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_3a50fad741,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_3a50fad741__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_3a50fad741,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_3a50fad741__S01__regression__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_3a50fad741,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_3a50fad741__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_3a50fad741,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_3a50fad741__S01__classification__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_29771ea439,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_29771ea439__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_29771ea439,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_29771ea439__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_29771ea439,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_29771ea439__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_29771ea439,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_29771ea439__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_bb17535e3d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_bb17535e3d__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_bb17535e3d,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_bb17535e3d__S00__regression__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_bb17535e3d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_bb17535e3d__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_bb17535e3d,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_bb17535e3d__S00__classification__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_bb17535e3d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_bb17535e3d__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_bb17535e3d,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_bb17535e3d__S01__regression__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_bb17535e3d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_bb17535e3d__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_bb17535e3d,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_bb17535e3d__S01__classification__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_0e2693c444,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_0e2693c444__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_0e2693c444,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_0e2693c444__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_0e2693c444,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_0e2693c444__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_0e2693c444,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_0e2693c444__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_1cae9eb68a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_1cae9eb68a__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_1cae9eb68a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_1cae9eb68a__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_1cae9eb68a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_1cae9eb68a__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_1cae9eb68a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_1cae9eb68a__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_14f4d6c786,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_14f4d6c786__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_14f4d6c786,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_14f4d6c786__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_14f4d6c786,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_14f4d6c786__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_14f4d6c786,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_14f4d6c786__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_668fd92dae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_668fd92dae__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_668fd92dae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_668fd92dae__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_668fd92dae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_668fd92dae__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_668fd92dae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_668fd92dae__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_13f82bc3e6,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_13f82bc3e6__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_13f82bc3e6,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_13f82bc3e6__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_13f82bc3e6,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_13f82bc3e6__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_13f82bc3e6,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_13f82bc3e6__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_93a02f912d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_93a02f912d__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_93a02f912d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_93a02f912d__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_93a02f912d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_93a02f912d__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_93a02f912d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_93a02f912d__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_88ce6aeeb8__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_88ce6aeeb8__S00__regression__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_88ce6aeeb8__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_88ce6aeeb8__S00__classification__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_88ce6aeeb8__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_88ce6aeeb8__S01__regression__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_88ce6aeeb8__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_88ce6aeeb8__S01__classification__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_699cac7506,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_699cac7506__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_699cac7506,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_699cac7506__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_699cac7506,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_699cac7506__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_699cac7506,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_699cac7506__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_a3300f3dab,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_a3300f3dab__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_a3300f3dab,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_a3300f3dab__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_a3300f3dab,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_a3300f3dab__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_a3300f3dab,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_a3300f3dab__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_c4c555564a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_c4c555564a__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_c4c555564a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_c4c555564a__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_c4c555564a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_c4c555564a__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_c4c555564a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_c4c555564a__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_dfbb2fb4eb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_dfbb2fb4eb__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_dfbb2fb4eb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_dfbb2fb4eb__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_dfbb2fb4eb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_dfbb2fb4eb__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_dfbb2fb4eb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_dfbb2fb4eb__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_b7645570bb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_b7645570bb__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_b7645570bb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_b7645570bb__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_b7645570bb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_b7645570bb__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_b7645570bb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_b7645570bb__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_9d87c41f06,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_9d87c41f06__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_9d87c41f06,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_9d87c41f06__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_9d87c41f06,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_9d87c41f06__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_9d87c41f06,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_9d87c41f06__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_52cf0df7df,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_52cf0df7df__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_52cf0df7df,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_52cf0df7df__S00__regression__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_52cf0df7df,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_52cf0df7df__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_52cf0df7df,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_52cf0df7df__S00__classification__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_52cf0df7df,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_52cf0df7df__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_52cf0df7df,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_52cf0df7df__S01__regression__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_52cf0df7df,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_52cf0df7df__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_52cf0df7df,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A04__E_52cf0df7df__S01__classification__tanh
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_8d1e8dec4a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_8d1e8dec4a__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_8d1e8dec4a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_8d1e8dec4a__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_8d1e8dec4a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_8d1e8dec4a__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_8d1e8dec4a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_8d1e8dec4a__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_8792990f0d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_8792990f0d__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_8792990f0d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_8792990f0d__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_8792990f0d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_8792990f0d__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_8792990f0d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_8792990f0d__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_1bb2012e1e,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_1bb2012e1e__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_1bb2012e1e,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_1bb2012e1e__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_1bb2012e1e,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_1bb2012e1e__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_1bb2012e1e,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_1bb2012e1e__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_14a8724a71,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_14a8724a71__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_14a8724a71,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_14a8724a71__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_14a8724a71,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_14a8724a71__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_14a8724a71,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_14a8724a71__S01__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_251da47d97,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_251da47d97__S00__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_251da47d97,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_251da47d97__S00__classification__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_251da47d97,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_251da47d97__S01__regression__relu
+C2A04,A03,"[230, 230, 230, 230]",4,166290,constant,E_251da47d97,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A04__E_251da47d97__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_688afa01ae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_688afa01ae__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_688afa01ae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_688afa01ae__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_688afa01ae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_688afa01ae__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_688afa01ae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_688afa01ae__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_883939ad68,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_883939ad68__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_883939ad68,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_883939ad68__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_883939ad68,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_883939ad68__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_883939ad68,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_883939ad68__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_3a50fad741,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_3a50fad741__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_3a50fad741,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_3a50fad741__S00__regression__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_3a50fad741,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_3a50fad741__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_3a50fad741,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_3a50fad741__S00__classification__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_3a50fad741,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_3a50fad741__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_3a50fad741,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_3a50fad741__S01__regression__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_3a50fad741,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_3a50fad741__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_3a50fad741,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_3a50fad741__S01__classification__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_29771ea439,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_29771ea439__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_29771ea439,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_29771ea439__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_29771ea439,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_29771ea439__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_29771ea439,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_29771ea439__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_bb17535e3d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_bb17535e3d__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_bb17535e3d,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_bb17535e3d__S00__regression__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_bb17535e3d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_bb17535e3d__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_bb17535e3d,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_bb17535e3d__S00__classification__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_bb17535e3d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_bb17535e3d__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_bb17535e3d,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_bb17535e3d__S01__regression__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_bb17535e3d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_bb17535e3d__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_bb17535e3d,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_bb17535e3d__S01__classification__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_0e2693c444,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_0e2693c444__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_0e2693c444,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_0e2693c444__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_0e2693c444,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_0e2693c444__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_0e2693c444,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_0e2693c444__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_1cae9eb68a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_1cae9eb68a__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_1cae9eb68a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_1cae9eb68a__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_1cae9eb68a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_1cae9eb68a__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_1cae9eb68a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_1cae9eb68a__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_14f4d6c786,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_14f4d6c786__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_14f4d6c786,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_14f4d6c786__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_14f4d6c786,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_14f4d6c786__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_14f4d6c786,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_14f4d6c786__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_668fd92dae,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_668fd92dae__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_668fd92dae,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_668fd92dae__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_668fd92dae,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_668fd92dae__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_668fd92dae,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_668fd92dae__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_13f82bc3e6,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_13f82bc3e6__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_13f82bc3e6,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_13f82bc3e6__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_13f82bc3e6,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_13f82bc3e6__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_13f82bc3e6,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_13f82bc3e6__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_93a02f912d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_93a02f912d__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_93a02f912d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_93a02f912d__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_93a02f912d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_93a02f912d__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_93a02f912d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_93a02f912d__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_88ce6aeeb8__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_88ce6aeeb8,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_88ce6aeeb8__S00__regression__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_88ce6aeeb8__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_88ce6aeeb8,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_88ce6aeeb8__S00__classification__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_88ce6aeeb8__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_88ce6aeeb8,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_88ce6aeeb8__S01__regression__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_88ce6aeeb8__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_88ce6aeeb8,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_88ce6aeeb8__S01__classification__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_699cac7506,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_699cac7506__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_699cac7506,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_699cac7506__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_699cac7506,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_699cac7506__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_699cac7506,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_699cac7506__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_a3300f3dab,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_a3300f3dab__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_a3300f3dab,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_a3300f3dab__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_a3300f3dab,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_a3300f3dab__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_a3300f3dab,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_a3300f3dab__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_c4c555564a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_c4c555564a__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_c4c555564a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_c4c555564a__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_c4c555564a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_c4c555564a__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_c4c555564a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_c4c555564a__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_dfbb2fb4eb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_dfbb2fb4eb__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_dfbb2fb4eb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_dfbb2fb4eb__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_dfbb2fb4eb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_dfbb2fb4eb__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_dfbb2fb4eb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_dfbb2fb4eb__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_b7645570bb,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_b7645570bb__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_b7645570bb,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_b7645570bb__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_b7645570bb,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_b7645570bb__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_b7645570bb,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_b7645570bb__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_9d87c41f06,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_9d87c41f06__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_9d87c41f06,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_9d87c41f06__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_9d87c41f06,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_9d87c41f06__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_9d87c41f06,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_9d87c41f06__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_52cf0df7df,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_52cf0df7df__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_52cf0df7df,0,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_52cf0df7df__S00__regression__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_52cf0df7df,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_52cf0df7df__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_52cf0df7df,0,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_52cf0df7df__S00__classification__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_52cf0df7df,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_52cf0df7df__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_52cf0df7df,1,regression,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_52cf0df7df__S01__regression__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_52cf0df7df,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_52cf0df7df__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_52cf0df7df,1,classification,adam,0.003,True,c2_tanh_sentinel,tanh,C2T__C2A05__E_52cf0df7df__S01__classification__tanh
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_8d1e8dec4a,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_8d1e8dec4a__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_8d1e8dec4a,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_8d1e8dec4a__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_8d1e8dec4a,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_8d1e8dec4a__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_8d1e8dec4a,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_8d1e8dec4a__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_8792990f0d,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_8792990f0d__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_8792990f0d,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_8792990f0d__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_8792990f0d,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_8792990f0d__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_8792990f0d,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_8792990f0d__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_1bb2012e1e,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_1bb2012e1e__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_1bb2012e1e,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_1bb2012e1e__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_1bb2012e1e,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_1bb2012e1e__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_1bb2012e1e,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_1bb2012e1e__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_14a8724a71,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_14a8724a71__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_14a8724a71,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_14a8724a71__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_14a8724a71,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_14a8724a71__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_14a8724a71,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_14a8724a71__S01__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_251da47d97,0,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_251da47d97__S00__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_251da47d97,0,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_251da47d97__S00__classification__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_251da47d97,1,regression,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_251da47d97__S01__regression__relu
+C2A05,A11,"[105, 84, 105]",3,21105,bottleneck,E_251da47d97,1,classification,adam,0.003,True,c2_primary_relu,relu,C2__C2A05__E_251da47d97__S01__classification__relu

@@ -1,0 +1,15 @@
+test,value,criterion,tolerance,passed
+zero_reference_fixed_translation,0,abs_le,0,True
+zero_reference_fixed_rotation,0,abs_le,0,True
+zero_reference_fixed_scale,0,abs_le,0,True
+field_translation_exact_interior,0,abs_le,0,True
+field_translation_retains_interior_mass,0,abs_le,0,True
+hellinger_correct_translation_zero,0,abs_le,1e-14,True
+wrong_direction_is_worse_for_impulse,1,ge,9.9999999999999995e-07,True
+field_probability_sum_test_rot,1.1102230246251565e-16,abs_le,9.9999999999999998e-13,True
+inframe_mass_defined_test_rot,0.99912162814078442,positive,0,True
+field_probability_sum_test_scale,1.1102230246251565e-16,abs_le,9.9999999999999998e-13,True
+inframe_mass_defined_test_scale,1.0179746374336904,positive,0,True
+field_probability_sum_test_shrink,0,abs_le,9.9999999999999998e-13,True
+inframe_mass_defined_test_shrink,1.0269013869836912,positive,0,True
+synthetic_fieldA_probability_sum,2.2204460492503131e-16,abs_le,5.0000000000000004e-06,True

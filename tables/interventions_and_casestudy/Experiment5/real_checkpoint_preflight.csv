@@ -1,0 +1,5 @@
+dataset,run_id,transform_family,transform_id,baseline_defined,identity_defined,transformed_defined,expected_field_defined,baseline_field_sum_error,identity_recompute_hellinger,zero_reference_transform_error,expected_field_sum_error,expected_field_prenorm_mass
+mpi3d,BENCH__mpi3d__C1_taper__sgdm__relu__S00,translation,up_1,True,True,True,True,0,0,0,1.1102230246251565e-16,0.99994771395712112
+fmnist,BENCH__fmnist__C1_taper__sgdm__relu__S00,translation,left_1,True,True,True,True,2.2204460492503131e-16,0,0,0,0.998115796060706
+fmnist,BENCH__fmnist__C1_taper__sgdm__relu__S00,rotation,rot_cw_10,True,True,True,True,2.2204460492503131e-16,0,0,0,0.99625037771095104
+fmnist,BENCH__fmnist__C1_taper__sgdm__relu__S00,scale,scale_down_090,True,True,True,True,2.2204460492503131e-16,0,0,0,1.0034262077361817

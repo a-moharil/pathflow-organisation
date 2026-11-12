@@ -1,0 +1,25 @@
+env_id,teacher_family,informative_fraction,spatial_correlation,snr,interaction_strength,localization,stage,source_index,panel_order,panel_rule
+S3E_CAN_DISTRIBUTED,deep_compositional,0.85,0.2,25.0,0.35,0.05,standalone_anchor,-2,0,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_CAN_LOCALIZED,deep_compositional,0.2,0.2,25.0,0.35,0.95,standalone_anchor,-1,1,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_1972ba848d,linear_spatial,0.9442733325064182,0.8750820284709334,2.2035861317294767,0.7150196377187967,0.5838432451710105,standalone_sobol_pool,226,2,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_e368ce4e9c,shallow_nonlinear,0.16232126895338297,0.8297735259868205,3.2708528985371137,0.6420284500345588,0.013365685939788818,standalone_sobol_pool,223,3,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_edf55b41cc,shallow_nonlinear,0.9952724096365273,0.24228314738720655,31.230818538647913,0.1312296250835061,0.8119399752467871,standalone_sobol_pool,222,4,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_8604616d2a,linear_spatial,0.24507758179679515,0.01757906461134553,37.017428934202165,0.10193837620317936,0.5743639254942536,standalone_sobol_pool,217,5,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_0017239e3c,deep_compositional,0.10256671141833068,0.8709150449372828,2.419902973560309,0.20693427976220846,0.2521201930940151,standalone_sobol_pool,7,6,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_2992e69346,deep_compositional,0.9773718990385533,0.6254180495627225,8.496676742579542,0.9551127171143889,0.9126038104295731,standalone_sobol_pool,252,7,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_662bbe7025,linear_spatial,0.2000787453725934,0.8921923385001719,8.300521192403455,0.04566218797117472,0.07480928394943476,standalone_sobol_pool,133,8,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_2e7be65211,shallow_nonlinear,0.22336050821468234,0.0026340398937463763,5.559183481251726,0.6228009033948183,0.9726830627769232,standalone_sobol_pool,351,9,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_d218b08f5c,shallow_nonlinear,0.7244026800617576,0.8959760745987296,28.005342368507275,0.9705402096733451,0.8638316448777914,standalone_sobol_pool,200,10,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_e70a5a1355,shallow_nonlinear,0.4283062885515392,0.09324558740481735,34.0938477839467,0.7315736599266529,0.028477922081947327,standalone_sobol_pool,337,11,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_d77b1aa3bf,linear_spatial,0.20645277788862587,0.21145369866862893,2.3219915860585556,0.6706637907773256,0.9774454617872834,standalone_sobol_pool,73,12,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_f99542ea07,linear_spatial,0.9819340859539807,0.09898306550458073,45.27846477308706,0.8046110216528177,0.6377062574028969,standalone_sobol_pool,154,13,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_240a5a1fa9,shallow_nonlinear,0.984624355006963,0.39385200189426545,2.2674964500605155,0.33011433109641075,0.0029149875044822693,standalone_sobol_pool,48,14,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_374a3e32fe,deep_compositional,0.20150074111297728,0.10094485497102142,4.037705810135059,0.9539602408185601,0.30896797124296427,standalone_sobol_pool,379,15,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_a6dca4230c,linear_spatial,0.3813546363264323,0.8233871192671359,41.56127629057845,0.9185360465198755,0.29384214524179697,standalone_sobol_pool,245,16,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_5efde0b3de,linear_spatial,0.800124686025083,0.6813171638175846,35.37999470395237,0.025935860350728035,0.9854525467380881,standalone_sobol_pool,114,17,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_bf6bc87d21,deep_compositional,0.6989884822629392,0.005831086356192827,2.1694887408995056,0.07089926954358816,0.6599650653079152,standalone_sobol_pool,104,18,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_63fed3bb38,linear_spatial,0.7994042471982539,0.26934645026922227,5.708748211644134,0.3764210604131222,0.013779944740235806,standalone_sobol_pool,294,19,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_3229f08b6f,shallow_nonlinear,0.12017668094485999,0.6867545882239938,31.899680997873308,0.2573810610920191,0.5622362960129976,standalone_sobol_pool,233,20,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_2a1a00c2df,deep_compositional,0.9926872253417969,0.81969950851053,5.57424256814596,0.09718295559287071,0.5204408597201109,standalone_sobol_pool,184,21,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_0312448398,shallow_nonlinear,0.5099593434482813,0.8165025710128248,2.1757930861793415,0.5846165651455522,0.8311942266300321,standalone_sobol_pool,399,22,2 canonical anchors + seeded Sobol maximin; outcome-blind
+S3E_39f5e5b3c5,linear_spatial,0.1002529331482947,0.08014504825696349,5.061623863093417,0.7949159434065223,0.1121334470808506,standalone_sobol_pool,505,23,2 canonical anchors + seeded Sobol maximin; outcome-blind

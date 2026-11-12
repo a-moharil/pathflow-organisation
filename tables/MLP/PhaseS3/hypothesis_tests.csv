@@ -1,0 +1,7 @@
+hypothesis,statement,primary_statistic,value,status_rule
+H3.2,Adam has positive path-selection alignment for a substantial majority of runs.,"fraction of Adam runs with median Cov_p(G,log p)>0",1.0,>0.5 is directional support; confidence assessed by run-level sign test
+H3.3,Positive alignment persists across the selected Phase-II environment panel under Adam.,fraction of environments whose across-architecture/seed median alignment is positive,1.0,descriptive environment-level robustness; no independence assumed among runs within environment
+H3.4,The sign of path-selection alignment is preserved across optimizer families.,minimum optimizer-specific run fraction with median alignment >0,0.8898305084745762,universality supported only if all optimizer families remain predominantly positive
+H3.5,Finite edge/node flow changes are induced by differential path amplification.,maximum exact exponential-tilt edge/node flow reconstruction residual,1.6653345369377348e-16,numerical reconstruction residual should be near floating-point precision on common support
+H3.6,Increasing flow enrichment shortens the primary p=1 metric edge length.,median metric antialignment fraction,1.0,exact local monotonicity predicts value approximately 1 for changed edges
+H3.7,Positive alignment and concentration continue after the best validation checkpoint.,fraction of eligible Adam runs with post-best Delta S_deficit >0,1.0,"best checkpoint selected on validation, never test"

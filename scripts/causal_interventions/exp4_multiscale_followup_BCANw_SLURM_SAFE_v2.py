@@ -1,0 +1,3868 @@
+from __future__ import annotations
+
+# ==================================================================================================
+# WORK II — EXPERIMENT 4: MULTISCALE FOLLOW-UP (RQ6)
+# POST-INTERVENTION BCANw ON FROZEN EXPERIMENT 1 CHECKPOINTS
+# MPI3D-TOY + FASHION-MNIST | DEEP MLPs + CNNs | HPC/SLURM SAFE
+# ==================================================================================================
+#
+# SCIENTIFIC PURPOSE
+# ------------------
+# Experiments 1–3 established that conditionally realized computation is load-bearing, condition
+# dependent, and responds in a graded fashion to controlled attenuation. Experiment 4 does NOT
+# retrain networks and does NOT treat BCANw as a causal mechanism. It asks a downstream question:
+#
+#   RQ6: Does the established multiscale organization of conditional realized flow change after
+#        a validated intervention on the computation carrying that realization?
+#
+# For each frozen Experiment 1 checkpoint and environment, use the same 10 balanced conditions c=(x,0):
+#   1) compute each unperturbed conditional realization;
+#   2) reconstruct the SAME three Experiment 1 intervention sets independently for each condition:
+#        - realized: high conditional realized-flow edges/occurrences;
+#        - structural: output-matched high structural-flow elements at the same layerwise budget;
+#        - matched: same-positive-support, ordinary-activation-matched comparison elements;
+#   3) apply the already validated moderate attenuation alpha=0.25;
+#   4) recompute each intervened conditional realization from scratch;
+#   5) average the normalized baseline/post edge-or-occurrence and node flows across the 10 conditions,
+#      exactly following the canonical benchmark population-state geometry semantics;
+#   6) apply the IDENTICAL audited BCANw construction to baseline and post-intervention population flows;
+#   7) compare the resulting multiscale observables.
+#
+# The causal/representational ordering is therefore:
+#
+#     frozen checkpoint -> conditional realization -> controlled intervention
+#     -> new conditional realization -> BCANw representation
+#
+# BCANw remains a downstream representation of the flow organization.
+#
+# REQUIRED EXISTING FILES
+# -----------------------
+# From Experiment 1 only:
+#   <EXP1_RESULTS>/checkpoints/*.pt   (324 frozen best-validation checkpoints by default)
+#   <EXP1_RESULTS>/data/              (MPI3D/FMNIST cache, unless supplied again)
+#
+# Experiment 2/3 numerical results are NOT computational dependencies. Their 10-condition population
+# tables are used only as optional cohort-consistency audits when present.
+#
+# DEFAULT OUTPUT
+# --------------
+#   pathflow_work2_selfcontained_realization_intervention_FMNIST_MPI3D_results/
+#       experiment4_multiscale_followup/
+#           tables/
+#           figures/
+#           run_parts/
+#           audit/
+#
+# No Experiment 1/2/3 file is overwritten.
+#
+# DEFAULT GEOMETRY DESIGN
+# -----------------------
+#   324 frozen checkpoints
+#   10 balanced conditions/model
+#   clean + deterministic 15 dB shifted environments
+#   1 baseline + 3 post-intervention POPULATION states per model/environment
+#   alpha = 0.25
+#   audited population BCANw convention: 64 scales + established nodewise local geometry by default
+#   = 2,592 population BCANw state measurements, each formed from the same 10 balanced conditional states
+#
+# This is deliberately resumable because all-pairs graph geometry is substantially
+# more expensive than Experiments 1–3. The script stops cleanly at the 46 h software wall and can be
+# rerun without losing completed population geometry states.
+#
+# HPC RUN
+# -------
+#   srun python -u exp4_multiscale_followup_BCANw_SLURM_SAFE_v2.py
+#
+# JUPYTER ON AN ALLOCATED HPC GPU NODE
+# ------------------------------------
+#   %run exp4_multiscale_followup_BCANw_SLURM_SAFE_v2.py
+# ==================================================================================================
+
+import os
+import math
+import json
+import time
+import random
+import copy
+import hashlib
+import urllib.request
+import warnings
+from pathlib import Path
+from typing import Any, Dict, List, Tuple, Optional, Sequence
+
+import numpy as np
+import pandas as pd
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+try:
+    import torchvision
+    from torchvision.datasets import FashionMNIST
+except Exception as e:
+    raise RuntimeError("torchvision is required for Fashion-MNIST") from e
+
+from tqdm.auto import tqdm
+from scipy.stats import wilcoxon, spearmanr, ks_2samp
+
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+# ==================================================================================================
+# 0. CONFIGURATION
+# ==================================================================================================
+
+PROFILE = os.environ.get("PATHFLOW_EXP4_PROFILE", "l4_48h").strip().lower()
+RESUME = os.environ.get("PATHFLOW_EXP4_RESUME", "1") != "0"
+START_FRESH = os.environ.get("PATHFLOW_EXP4_START_FRESH", "0") == "1"
+RUN_PREFLIGHT = os.environ.get("PATHFLOW_EXP4_PREFLIGHT", "1") != "0"
+PREFLIGHT_ONLY = os.environ.get("PATHFLOW_EXP4_PREFLIGHT_ONLY", "0") == "1"
+RUN_FIGURES = os.environ.get("PATHFLOW_EXP4_FIGURES", "1") != "0"
+ALLOW_DOWNLOAD = os.environ.get("PATHFLOW_EXP4_ALLOW_DOWNLOAD", "1") != "0"
+SELFTEST_ONLY = os.environ.get("PATHFLOW_EXP4_SELFTEST_ONLY", "0") == "1"
+REQUIRE_CUDA = os.environ.get("PATHFLOW_EXP4_REQUIRE_CUDA", "1") != "0"
+SOFT_WALL_HOURS = float(os.environ.get("PATHFLOW_EXP4_SOFT_WALL_HOURS", "46.0"))
+SOFT_START_BUFFER_MIN = float(os.environ.get("PATHFLOW_EXP4_SOFT_START_BUFFER_MIN", "20.0"))
+SCRIPT_START_MONOTONIC = time.perf_counter()
+
+SEED = 730031
+MODEL_SEED_BASE = 271828
+ORDER_SEED_BASE = 141421
+NOISE_SEED_BASE = 161803
+MATCH_SEED_BASE = 223607
+CONDITION_SEED_BASE = 244949
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+CPU_THREADS = int(os.environ.get("SLURM_CPUS_PER_TASK", os.environ.get("PATHFLOW_EXP4_CPU_THREADS", "4")))
+torch.set_num_threads(max(1, CPU_THREADS))
+
+def _script_or_submit_dir() -> Path:
+    """Persistent default root for both Slurm and Jupyter/%run execution.
+
+    Priority:
+      1) directory containing this Python file, when __file__ is available;
+      2) SLURM_SUBMIT_DIR, when supplied by Slurm;
+      3) current working directory.
+
+    We deliberately never default to /content or any Colab/Google-Drive path.
+    """
+    try:
+        f = globals().get("__file__", None)
+        if f:
+            return Path(f).expanduser().resolve().parent
+    except Exception:
+        pass
+    submit = os.environ.get("SLURM_SUBMIT_DIR", "").strip()
+    if submit:
+        return Path(submit).expanduser().resolve()
+    return Path.cwd().resolve()
+
+
+SCRIPT_DIR = _script_or_submit_dir()
+
+# Experiment 4 is designed to run from the SAME working directory as Experiments 1, 2 and 3.
+# It reuses only immutable Experiment 1 checkpoints and dataset files.
+# All Experiment 4 outputs are isolated under a dedicated subtree.
+_EXP1_RESULTS_ENV = os.environ.get("PATHFLOW_EXP1_RESULTS", "").strip()
+EXP1_RESULTS = (
+    Path(_EXP1_RESULTS_ENV).expanduser().resolve()
+    if _EXP1_RESULTS_ENV
+    else SCRIPT_DIR / "pathflow_work2_selfcontained_realization_intervention_FMNIST_MPI3D_results"
+)
+SOURCE_CHECKPOINT_DIR = EXP1_RESULTS / "checkpoints"
+
+_EXP4_OUTDIR_ENV = os.environ.get("PATHFLOW_EXP4_OUTDIR", "").strip()
+OUTDIR = (
+    Path(_EXP4_OUTDIR_ENV).expanduser().resolve()
+    if _EXP4_OUTDIR_ENV
+    else EXP1_RESULTS / "experiment4_multiscale_followup"
+)
+
+_DATA_ROOT_ENV = os.environ.get("PATHFLOW_EXP4_DATA_ROOT", "").strip()
+DATA_ROOT = (
+    Path(_DATA_ROOT_ENV).expanduser().resolve()
+    if _DATA_ROOT_ENV
+    else EXP1_RESULTS / "data"
+)
+
+try:
+    OUTDIR.mkdir(parents=True, exist_ok=True)
+    for sub in ["tables", "figures", "run_parts", "audit"]:
+        (OUTDIR / sub).mkdir(parents=True, exist_ok=True)
+    DATA_ROOT.mkdir(parents=True, exist_ok=True)
+    _write_probe = OUTDIR / "audit" / ".write_probe"
+    _write_probe.write_text("ok", encoding="utf-8")
+    _write_probe.unlink()
+except Exception as e:
+    raise RuntimeError(
+        "Could not create/write the Experiment 4 output directory. "
+        f"Resolved EXP1_RESULTS={EXP1_RESULTS}, OUTDIR={OUTDIR}. "
+        "Run this script from the Experiment 1 working directory or set PATHFLOW_EXP1_RESULTS and "
+        "PATHFLOW_EXP4_OUTDIR to a writable persistent Slurm/HPC path."
+    ) from e
+
+if START_FRESH:
+    # Data are intentionally preserved. Scientific outputs/checkpoints are cleared.
+    for sub in ["tables", "figures", "checkpoints", "training_parts", "run_parts", "audit"]:
+        for p in (OUTDIR / sub).glob("*"):
+            if p.is_file():
+                try:
+                    p.unlink()
+                except Exception:
+                    pass
+
+DATASETS = [x.strip().lower() for x in os.environ.get("PATHFLOW_EXP4_DATASETS", "mpi3d,fmnist").split(",") if x.strip()]
+ACTIVATIONS = [x.strip().lower() for x in os.environ.get("PATHFLOW_EXP4_ACTIVATIONS", "relu,tanh,silu").split(",") if x.strip()]
+OPTIMIZERS = [x.strip().lower() for x in os.environ.get("PATHFLOW_EXP4_OPTIMIZERS", "sgdm,rmsprop,adam").split(",") if x.strip()]
+SEEDS = [int(x) for x in os.environ.get("PATHFLOW_EXP4_SEEDS", "0,1,2").split(",") if x.strip()]
+ENVIRONMENTS = [x.strip().lower() for x in os.environ.get("PATHFLOW_EXP4_ENVIRONMENTS", "clean,shifted").split(",") if x.strip()]
+
+IMAGE_RESOLUTION = 16
+N_TRAIN = int(os.environ.get("PATHFLOW_EXP4_NTRAIN", "20000"))
+N_VAL = int(os.environ.get("PATHFLOW_EXP4_NVAL", "5000"))
+N_TEST = int(os.environ.get("PATHFLOW_EXP4_NTEST", "5000"))
+BATCH_SIZE = int(os.environ.get("PATHFLOW_EXP4_BATCH", "256"))
+MAX_EPOCH = int(os.environ.get("PATHFLOW_EXP4_EPOCHS", "160"))
+WEIGHT_DECAY = 0.0
+ENDPOINT_INPUTS = int(os.environ.get("PATHFLOW_EXP4_ENDPOINT_INPUTS", "160"))
+SHIFT_SNR_DB = float(os.environ.get("PATHFLOW_EXP4_SHIFT_SNR_DB", "15.0"))
+
+LEARNING_RATES = {
+    "sgdm": 1.0e-2,
+    "rmsprop": 1.0e-3,
+    "adam": 1.0e-3,
+}
+
+# Shared Experiment 1 targeting conventions; ATTENUATION=0.25 is used only by common fidelity sentinels.
+CONDITIONS_PER_MODEL = int(os.environ.get("PATHFLOW_EXP4_CONDITIONS", "40"))
+TARGET_FRACTION = float(os.environ.get("PATHFLOW_EXP4_TARGET_FRACTION", "0.10"))
+ATTENUATION = float(os.environ.get("PATHFLOW_EXP4_ALPHA", "0.25"))
+SAVE_EVERY_CONDITIONS = int(os.environ.get("PATHFLOW_EXP4_SAVE_EVERY", "5"))
+MATCH_BINS = int(os.environ.get("PATHFLOW_EXP4_MATCH_BINS", "20"))
+PREFLIGHT_TOL = float(os.environ.get("PATHFLOW_EXP4_PREFLIGHT_TOL", "5e-6"))
+
+EPS = 1e-14
+PATH_LOG_FLOOR = 1e-300
+MANIFEST_EPS = 1e-12
+
+MLP_ARCHS: Dict[str, List[int]] = {
+    "M1_taper": [512, 384, 256, 128, 64],
+    "M2_sustained": [384, 384, 384, 256, 128],
+    "M3_bottleneck": [512, 256, 64, 256, 128],
+}
+CNN_ARCHS: Dict[str, Dict[str, Any]] = {
+    "C1_taper": {"hidden_channels": [4, 8, 8, 12], "kernels": [3, 3, 3, 3, 1]},
+    "C2_bottleneck": {"hidden_channels": [4, 8, 3, 8, 10], "kernels": [3, 3, 1, 3, 3, 1]},
+    "C3_deepmix": {"hidden_channels": [3, 6, 8, 8, 10, 8], "kernels": [3, 3, 3, 1, 3, 1, 1]},
+}
+ARCH_IDS = list(MLP_ARCHS) + list(CNN_ARCHS)
+
+if PROFILE == "pilot":
+    DATASETS = ["fmnist"]
+    ACTIVATIONS = ["relu"]
+    OPTIMIZERS = ["adam"]
+    SEEDS = [0]
+    ARCH_IDS = ["M2_sustained", "C2_bottleneck"]
+    N_TRAIN, N_VAL, N_TEST = 1024, 256, 256
+    BATCH_SIZE = 128
+    MAX_EPOCH = 4
+    ENDPOINT_INPUTS = 16
+    CONDITIONS_PER_MODEL = 4
+
+if not (0.0 < TARGET_FRACTION <= 0.5):
+    raise ValueError("TARGET_FRACTION must lie in (0, 0.5].")
+if not (0.0 <= ATTENUATION < 1.0):
+    raise ValueError("ATTENUATION must lie in [0,1).")
+if CONDITIONS_PER_MODEL <= 0:
+    raise ValueError("CONDITIONS_PER_MODEL must be positive.")
+if any(e not in {"clean", "shifted"} for e in ENVIRONMENTS):
+    raise ValueError(f"Unsupported environments: {ENVIRONMENTS}")
+if SOFT_WALL_HOURS <= 0:
+    raise ValueError("SOFT_WALL_HOURS must be positive.")
+
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
+torch.set_float32_matmul_precision("high")
+
+# ==================================================================================================
+# 1. GENERIC HELPERS
+# ==================================================================================================
+
+def banner(s: str):
+    print("\n" + "=" * 116)
+    print(s)
+    print("=" * 116)
+
+
+def human_time(seconds: float) -> str:
+    if not np.isfinite(seconds) or seconds < 0:
+        return "unknown"
+    s = int(round(seconds))
+    h, s = divmod(s, 3600)
+    m, s = divmod(s, 60)
+    if h:
+        return f"{h}h {m:02d}m"
+    if m:
+        return f"{m}m {s:02d}s"
+    return f"{s}s"
+
+
+class ETAReporter:
+    def __init__(self, stage: str, total: int, window: int = 8):
+        self.stage = stage
+        self.total = max(int(total), 1)
+        self.window = max(int(window), 3)
+        self.start = time.perf_counter()
+        self.durations: List[float] = []
+
+    def update(self, duration: float, completed: int):
+        self.durations.append(float(duration))
+        med = float(np.median(self.durations[-self.window:]))
+        remain = max(self.total - completed, 0)
+        elapsed = time.perf_counter() - self.start
+        tqdm.write(
+            f"[ETA:{self.stage}] {completed}/{self.total} | current {human_time(duration)} | "
+            f"rolling median {human_time(med)}/item | remaining ~{human_time(med * remain)} | "
+            f"elapsed {human_time(elapsed)}"
+        )
+
+    def finish(self):
+        tqdm.write(f"[ETA:{self.stage}] finished in {human_time(time.perf_counter() - self.start)}")
+
+
+def stable_hash_dict(d: Dict[str, Any], n: int = 12) -> str:
+    return hashlib.sha1(json.dumps(d, sort_keys=True, default=str, separators=(",", ":")).encode()).hexdigest()[:n]
+
+
+def atomic_csv(df: pd.DataFrame, path: Path):
+    path = Path(path)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    df.to_csv(tmp, index=False)
+    tmp.replace(path)
+
+
+def atomic_json(obj: Any, path: Path):
+    path = Path(path)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(obj, indent=2, default=str), encoding="utf-8")
+    tmp.replace(path)
+
+
+def safe_read_csv(path: Path) -> pd.DataFrame:
+    if not path.exists() or path.stat().st_size <= 1:
+        return pd.DataFrame()
+    try:
+        return pd.read_csv(path)
+    except Exception:
+        return pd.DataFrame()
+
+
+def safe_log(x: float) -> float:
+    try:
+        x = float(x)
+        return float(math.log(max(x, EPS))) if np.isfinite(x) else np.nan
+    except Exception:
+        return np.nan
+
+
+def model_seed(arch: str, dataset: str, seed_index: int) -> int:
+    return int(MODEL_SEED_BASE + 1000003 * seed_index + int(stable_hash_dict({"a": arch, "d": dataset}, 8), 16) % 999983)
+
+
+def family_of(arch: str) -> str:
+    return "mlp" if arch in MLP_ARCHS else "cnn"
+
+
+def output_dim_for(ds: str) -> int:
+    return 10 if ds == "fmnist" else 1
+
+
+def task_for(ds: str) -> str:
+    return "classification" if ds == "fmnist" else "regression"
+
+
+def checkpoint_path(run_id: str) -> Path:
+    return SOURCE_CHECKPOINT_DIR / f"{run_id}__best.pt"
+
+
+def training_part_path(run_id: str, kind: str) -> Path:
+    return OUTDIR / "unused_training_parts" / f"{run_id}__{kind}.csv"
+
+
+def part_path(run_id: str, kind: str) -> Path:
+    return OUTDIR / "run_parts" / f"{run_id}__{kind}.csv"
+
+
+def done_path(run_id: str) -> Path:
+    return OUTDIR / "run_parts" / f"{run_id}__DONE.json"
+
+
+def holm_adjust(pvals: Sequence[float]) -> np.ndarray:
+    p = np.asarray(pvals, float)
+    m = len(p)
+    if m == 0:
+        return np.asarray([], float)
+    out = np.ones(m, float)
+    order = np.argsort(p)
+    running = 0.0
+    for rank, idx in enumerate(order):
+        val = min(1.0, (m - rank) * p[idx])
+        running = max(running, val)
+        out[idx] = running
+    return out
+
+
+def bootstrap_median_ci(d: np.ndarray, seed: int = 0, B: int = 2000) -> Tuple[float, float]:
+    d = np.asarray(d, float)
+    d = d[np.isfinite(d)]
+    if len(d) < 2:
+        return np.nan, np.nan
+    rng = np.random.default_rng(SEED + seed)
+    vals = np.empty(B, float)
+    for b in range(B):
+        vals[b] = np.median(rng.choice(d, size=len(d), replace=True))
+    return float(np.quantile(vals, .025)), float(np.quantile(vals, .975))
+
+
+def hodges_lehmann_onesample(d: np.ndarray) -> float:
+    d = np.asarray(d, float)
+    d = d[np.isfinite(d)]
+    if len(d) == 0:
+        return np.nan
+    vals = [0.5 * (d[i] + d[j]) for i in range(len(d)) for j in range(i, len(d))]
+    return float(np.median(vals))
+
+
+def paired_rank_biserial(d: np.ndarray) -> float:
+    d = np.asarray(d, float)
+    d = d[np.isfinite(d) & (d != 0)]
+    if len(d) == 0:
+        return 0.0
+    ranks = pd.Series(np.abs(d)).rank(method="average").to_numpy(float)
+    wp = float(ranks[d > 0].sum())
+    wm = float(ranks[d < 0].sum())
+    den = wp + wm
+    return float((wp - wm) / den) if den > 0 else 0.0
+
+
+def hash_indices(mask: np.ndarray) -> str:
+    ids = np.flatnonzero(np.asarray(mask, bool)).astype(np.int64)
+    return hashlib.sha1(ids.tobytes()).hexdigest()[:16]
+
+
+def tensor_close_max(a: torch.Tensor, b: torch.Tensor) -> float:
+    if a.shape != b.shape:
+        return float("inf")
+    return float(torch.max(torch.abs(a.to(torch.float64) - b.to(torch.float64))).item()) if a.numel() else 0.0
+
+
+def soft_wall_remaining_seconds() -> float:
+    return max(0.0, SOFT_WALL_HOURS * 3600.0 - (time.perf_counter() - SCRIPT_START_MONOTONIC))
+
+
+def can_start_new_unit(stage: str, extra_buffer_min: Optional[float] = None) -> bool:
+    """Conservative Slurm wall-time guard.
+
+    It is checked only between atomic units (trained models / intervention models), never in the
+    middle of a scientific state update. If the guard fires, all completed work is already on disk
+    and the same script can be resumed in a new allocation.
+    """
+    buffer_min = SOFT_START_BUFFER_MIN if extra_buffer_min is None else float(extra_buffer_min)
+    remaining = soft_wall_remaining_seconds()
+    if remaining <= buffer_min * 60.0:
+        msg = (
+            f"[soft-wall] Not starting next {stage}: remaining soft-wall budget "
+            f"{human_time(remaining)} <= safety buffer {buffer_min:.1f} min. Resume in a new allocation."
+        )
+        print(msg)
+        atomic_json({
+            "stage": stage,
+            "remaining_seconds": remaining,
+            "soft_wall_hours": SOFT_WALL_HOURS,
+            "safety_buffer_minutes": buffer_min,
+            "timestamp_unix": time.time(),
+        }, OUTDIR / "audit" / "soft_wall_stop.json")
+        return False
+    return True
+
+# ==================================================================================================
+# 2. SELF-CONTAINED TRAINING MANIFEST / DETERMINISTIC TRAINING HELPERS
+# ==================================================================================================
+
+def deterministic_batches(n: int, epoch: int, seed_index: int, batch_size: int):
+    rng = np.random.default_rng(ORDER_SEED_BASE + 104729 * seed_index + int(epoch))
+    ids = rng.permutation(int(n))
+    for lo in range(0, len(ids), batch_size):
+        yield ids[lo:min(lo + batch_size, len(ids))]
+
+
+def build_manifest() -> pd.DataFrame:
+    rows = []
+    for ds in DATASETS:
+        for arch in ARCH_IDS:
+            for opt in OPTIMIZERS:
+                for act in ACTIVATIONS:
+                    for seed in SEEDS:
+                        rid = f"BENCH__{ds}__{arch}__{opt}__{act}__S{seed:02d}"
+                        rows.append({
+                            "run_id": rid,
+                            "dataset": ds,
+                            "task": task_for(ds),
+                            "family": family_of(arch),
+                            "arch_id": arch,
+                            "optimizer": opt,
+                            "activation": act,
+                            "seed_index": seed,
+                        })
+    df = pd.DataFrame(rows)
+    atomic_csv(df, OUTDIR / "tables" / "run_manifest.csv")
+    return df
+
+
+def training_complete(run_id: str) -> bool:
+    return (
+        checkpoint_path(run_id).exists()
+        and training_part_path(run_id, "summary").exists()
+        and training_part_path(run_id, "history").exists()
+    )
+
+# ==================================================================================================
+# 3. DATASETS â€” COPIED IN LOGIC FROM THE AUDITED BENCHMARK
+# ==================================================================================================
+
+MPI3D_URL = os.environ.get(
+    "MPI3D_URL",
+    "https://huggingface.co/datasets/waleedgondal/mpi3d/resolve/main/mpi3d_toy.npz",
+)
+
+
+def _resize_images_np(x: np.ndarray, size: int) -> np.ndarray:
+    t = torch.as_tensor(x, dtype=torch.float32)
+    if t.ndim == 3:
+        t = t[:, None, :, :]
+    elif t.ndim == 4:
+        if t.shape[-1] in (1, 3, 4):
+            t = t.permute(0, 3, 1, 2)
+        elif t.shape[1] not in (1, 3, 4):
+            raise ValueError(f"Unsupported 4D image layout: {tuple(t.shape)}")
+    else:
+        raise ValueError(f"Unsupported image array shape: {tuple(t.shape)}")
+    with torch.no_grad():
+        y = F.interpolate(t, size=(size, size), mode="area")
+    return y.numpy().astype(np.float32)
+
+
+def _split_indices_stratified(labels: np.ndarray, ntr: int, nv: int, nt: int, seed: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    labels = np.asarray(labels)
+    rng = np.random.default_rng(seed)
+    classes = np.unique(labels)
+    tr, va, te = [], [], []
+    total = ntr + nv + nt
+    for c in classes:
+        ids = np.where(labels == c)[0]
+        rng.shuffle(ids)
+        take = max(1, int(round(total * len(ids) / len(labels))))
+        ids = ids[:min(take, len(ids))]
+        a = max(1, int(round(ntr * len(ids) / total)))
+        b = max(1, int(round(nv * len(ids) / total)))
+        tr.extend(ids[:a])
+        va.extend(ids[a:a + b])
+        te.extend(ids[a + b:])
+
+    def fill(arr, target, pool):
+        arr = list(dict.fromkeys(arr))
+        need = target - len(arr)
+        if need > 0:
+            remain = np.setdiff1d(pool, np.asarray(arr, int), assume_unique=False)
+            rng.shuffle(remain)
+            arr.extend(remain[:need].tolist())
+        return np.asarray(arr[:target], int)
+
+    pool = np.arange(len(labels))
+    tr = fill(tr, ntr, pool)
+    va_pool = np.setdiff1d(pool, tr)
+    va = fill(va, nv, va_pool)
+    te_pool = np.setdiff1d(pool, np.concatenate([tr, va]))
+    te = fill(te, nt, te_pool)
+    return tr, va, te
+
+
+def balanced_indices_from_strata(strata: np.ndarray, n: int, seed: int) -> np.ndarray:
+    strata = np.asarray(strata)
+    classes = np.asarray(sorted(np.unique(strata).tolist()))
+    if len(classes) == 0:
+        return np.array([], dtype=int)
+    n = min(int(n), len(strata))
+    rng = np.random.default_rng(int(seed))
+    base = n // len(classes)
+    rem = n % len(classes)
+    extra = set(rng.permutation(classes)[:rem].tolist())
+    chosen: Dict[Any, List[int]] = {}
+    leftovers: List[int] = []
+    for c in classes:
+        ids = np.where(strata == c)[0].copy()
+        rng.shuffle(ids)
+        take = base + (1 if c in extra else 0)
+        chosen[c] = ids[:min(take, len(ids))].tolist()
+        leftovers.extend(ids[min(take, len(ids)):].tolist())
+    selected = sum((v for v in chosen.values()), [])
+    if len(selected) < n:
+        rng.shuffle(leftovers)
+        selected.extend(leftovers[:n - len(selected)])
+    queues = {c: list(chosen[c]) for c in classes}
+    out: List[int] = []
+    while len(out) < min(n, sum(len(v) for v in queues.values())):
+        moved = False
+        for c in classes:
+            if queues[c] and len(out) < n:
+                out.append(queues[c].pop(0))
+                moved = True
+        if not moved:
+            break
+    if len(out) < n:
+        used = set(out)
+        tail = [i for i in selected if i not in used]
+        out.extend(tail[:n - len(out)])
+    return np.asarray(out[:n], dtype=int)
+
+
+def _ensure_mpi3d_npz() -> Path:
+    env = os.environ.get("MPI3D_NPZ", "").strip()
+    candidates = []
+    if env:
+        candidates.append(Path(env).expanduser())
+    candidates.extend([
+        DATA_ROOT / "mpi3d_toy.npz",
+        SCRIPT_DIR / "mpi3d_toy.npz",
+        SCRIPT_DIR / "data" / "mpi3d_toy.npz",
+        Path.cwd() / "mpi3d_toy.npz",
+        Path.cwd() / "data" / "mpi3d_toy.npz",
+        Path.home() / "data" / "mpi3d_toy.npz",
+        Path.home() / "datasets" / "mpi3d_toy.npz",
+    ])
+    for p in candidates:
+        if p.exists():
+            return p
+    if not ALLOW_DOWNLOAD:
+        raise FileNotFoundError(
+            "MPI3D-Toy NPZ was not found. Checked:\n  " + "\n  ".join(str(p) for p in candidates) +
+            "\nSet MPI3D_NPZ=/path/to/mpi3d_toy.npz or PATHFLOW_EXP4_ALLOW_DOWNLOAD=1."
+        )
+    p = DATA_ROOT / "mpi3d_toy.npz"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(p.suffix + ".part")
+    if tmp.exists():
+        try:
+            tmp.unlink()
+        except Exception:
+            pass
+    print(f"Downloading MPI3D-Toy to {p} ...")
+    try:
+        urllib.request.urlretrieve(MPI3D_URL, tmp)
+        # Basic integrity check before promoting the download to the persistent dataset path.
+        with np.load(tmp, allow_pickle=False) as z:
+            if "images" not in z.files:
+                raise RuntimeError(f"Downloaded MPI3D archive has keys {z.files}; expected 'images'.")
+        tmp.replace(p)
+    except Exception as e:
+        try:
+            if tmp.exists():
+                tmp.unlink()
+        except Exception:
+            pass
+        raise RuntimeError(
+            "MPI3D-Toy was not found locally and automatic download failed. "
+            "On compute nodes without outbound internet, place mpi3d_toy.npz on persistent storage "
+            "and set MPI3D_NPZ=/absolute/path/to/mpi3d_toy.npz."
+        ) from e
+    return p
+
+
+def load_mpi3d() -> Dict[str, Any]:
+    p = _ensure_mpi3d_npz()
+    factor_sizes = np.asarray([6, 6, 2, 3, 3, 40, 40], dtype=np.int64)
+    expected_n = int(np.prod(factor_sizes))
+    all_ids = np.arange(expected_n, dtype=np.int64)
+    xpos = ((all_ids // int(factor_sizes[-1])) % int(factor_sizes[-2])).astype(np.int64)
+    tr, va, te = _split_indices_stratified(xpos, N_TRAIN, N_VAL, N_TEST, SEED + 29)
+    ids = np.concatenate([tr, va, te])
+
+    with np.load(p, allow_pickle=False) as z:
+        if "images" not in z.files:
+            raise KeyError(f"MPI3D NPZ has keys {z.files}; expected 'images'.")
+        images = z["images"]
+        if images.ndim != 4 or images.shape[-1] != 3:
+            raise ValueError(f"Unexpected MPI3D shape {images.shape}; expected [N,64,64,3].")
+        if images.shape[0] != expected_n:
+            raise ValueError(f"Unexpected MPI3D population size {images.shape[0]}; expected {expected_n}.")
+        imgs = images[ids].astype(np.float32) / 255.0
+
+    imgs = _resize_images_np(imgs, IMAGE_RESOLUTION)
+    ntr, nv = len(tr), len(va)
+    Xtr, Xv, Xt = imgs[:ntr], imgs[ntr:ntr + nv], imgs[ntr + nv:]
+    yall = xpos[ids].astype(np.float32)
+    ytr, yv, yt = yall[:ntr], yall[ntr:ntr + nv], yall[ntr + nv:]
+
+    mu = float(Xtr.mean())
+    sd = float(Xtr.std() + 1e-8)
+    Xtr = ((Xtr - mu) / sd).astype(np.float32)
+    Xv = ((Xv - mu) / sd).astype(np.float32)
+    Xt = ((Xt - mu) / sd).astype(np.float32)
+
+    ym = float(ytr.mean())
+    ys = float(ytr.std() + 1e-8)
+    ytr_n = ((ytr - ym) / ys).astype(np.float32)[:, None]
+    yv_n = ((yv - ym) / ys).astype(np.float32)[:, None]
+    yt_n = ((yt - ym) / ys).astype(np.float32)[:, None]
+
+    data = {
+        "task": "regression",
+        "output_dim": 1,
+        "train": (torch.from_numpy(Xtr), torch.from_numpy(ytr_n)),
+        "val": (torch.from_numpy(Xv), torch.from_numpy(yv_n)),
+        "test": (torch.from_numpy(Xt), torch.from_numpy(yt_n)),
+        "train_strata": xpos[tr].copy(),
+        "val_strata": xpos[va].copy(),
+        "test_strata": xpos[te].copy(),
+        "meta": {
+            "dataset": "mpi3d",
+            "variant": "mpi3d_toy",
+            "input_channels": 3,
+            "input_mean": mu,
+            "input_sd": sd,
+            "target_mean": ym,
+            "target_sd": ys,
+            "target": "horizontal_axis",
+            "target_levels": 40,
+            "resolution": IMAGE_RESOLUTION,
+            "npz": str(p),
+        },
+    }
+    return attach_endpoint_and_causal_population(data, "mpi3d")
+
+
+def load_fmnist() -> Dict[str, Any]:
+    root = Path(os.environ.get("PATHFLOW_EXP4_FMNIST_ROOT", str(DATA_ROOT / "fmnist"))).expanduser().resolve()
+    download = ALLOW_DOWNLOAD
+    ds_tr = FashionMNIST(root=str(root), train=True, download=download)
+    ds_te = FashionMNIST(root=str(root), train=False, download=download)
+    Xtr0 = ds_tr.data.numpy().astype(np.float32) / 255.0
+    ytr0 = ds_tr.targets.numpy().astype(np.int64)
+    Xte0 = ds_te.data.numpy().astype(np.float32) / 255.0
+    yte0 = ds_te.targets.numpy().astype(np.int64)
+    Xtr0 = _resize_images_np(Xtr0, IMAGE_RESOLUTION)
+    Xte0 = _resize_images_np(Xte0, IMAGE_RESOLUTION)
+    tr, va, _ = _split_indices_stratified(ytr0, N_TRAIN, N_VAL, max(1, min(1000, len(ytr0) - N_TRAIN - N_VAL)), SEED + 11)
+    _, _, te = _split_indices_stratified(
+        yte0,
+        max(1, min(1000, len(yte0) - N_TEST - 1)),
+        max(1, min(500, len(yte0) - N_TEST - 1)),
+        N_TEST,
+        SEED + 17,
+    )
+    mu = float(Xtr0[tr].mean())
+    sd = float(Xtr0[tr].std() + 1e-8)
+    Xtr = ((Xtr0[tr] - mu) / sd).astype(np.float32)
+    Xv = ((Xtr0[va] - mu) / sd).astype(np.float32)
+    Xt = ((Xte0[te] - mu) / sd).astype(np.float32)
+    data = {
+        "task": "classification",
+        "output_dim": 10,
+        "train": (torch.from_numpy(Xtr), torch.from_numpy(ytr0[tr])),
+        "val": (torch.from_numpy(Xv), torch.from_numpy(ytr0[va])),
+        "test": (torch.from_numpy(Xt), torch.from_numpy(yte0[te])),
+        "train_strata": ytr0[tr].copy(),
+        "val_strata": ytr0[va].copy(),
+        "test_strata": yte0[te].copy(),
+        "meta": {
+            "dataset": "fmnist",
+            "input_mean": mu,
+            "input_sd": sd,
+            "resolution": IMAGE_RESOLUTION,
+        },
+    }
+    return attach_endpoint_and_causal_population(data, "fmnist")
+
+
+def attach_endpoint_and_causal_population(data: Dict[str, Any], dataset: str) -> Dict[str, Any]:
+    test_strata = np.asarray(data["test_strata"])
+    endpoint_ids = balanced_indices_from_strata(
+        test_strata,
+        ENDPOINT_INPUTS,
+        SEED + 1009 + (0 if dataset == "fmnist" else 1),
+    )
+    endpoint_strata = test_strata[endpoint_ids]
+    causal_local_ids = balanced_indices_from_strata(
+        endpoint_strata,
+        min(CONDITIONS_PER_MODEL, len(endpoint_ids)),
+        CONDITION_SEED_BASE + (0 if dataset == "fmnist" else 1),
+    )
+    data["endpoint_indices"] = endpoint_ids
+    data["causal_endpoint_local_indices"] = causal_local_ids
+    data["causal_test_indices"] = endpoint_ids[causal_local_ids]
+    vals, counts = np.unique(endpoint_strata[causal_local_ids], return_counts=True)
+    data["causal_balance"] = {str(v): int(c) for v, c in zip(vals, counts)}
+    return data
+
+
+def load_datasets() -> Dict[str, Dict[str, Any]]:
+    out: Dict[str, Dict[str, Any]] = {}
+    if "mpi3d" in DATASETS:
+        out["mpi3d"] = load_mpi3d()
+    if "fmnist" in DATASETS:
+        out["fmnist"] = load_fmnist()
+    rows = []
+    for ds, d in out.items():
+        endpoint_ids = np.asarray(d["endpoint_indices"], int)
+        causal_local = np.asarray(d["causal_endpoint_local_indices"], int)
+        strata = np.asarray(d["test_strata"])
+        for j, local_id in enumerate(causal_local):
+            test_id = int(endpoint_ids[local_id])
+            rows.append({
+                "dataset": ds,
+                "condition_index": int(j),
+                "endpoint_local_index": int(local_id),
+                "test_index": test_id,
+                "stratum": strata[test_id],
+            })
+    atomic_csv(pd.DataFrame(rows), OUTDIR / "tables" / "causal_condition_population.csv")
+    return out
+
+
+def shifted_environment(X: torch.Tensor, dataset: str, dataset_meta: Dict[str, Any]) -> torch.Tensor:
+    x = X.float()
+    mu = float(dataset_meta["input_mean"])
+    sd = float(dataset_meta["input_sd"])
+    raw = x * sd + mu
+    signal = float(torch.mean(raw * raw).item())
+    noise_var = signal / (10.0 ** (SHIFT_SNR_DB / 10.0))
+    g = torch.Generator(device="cpu").manual_seed(
+        NOISE_SEED_BASE + int(stable_hash_dict({"d": dataset}, 8), 16) % 1000003
+    )
+    noise = torch.randn(raw.shape, generator=g, dtype=raw.dtype) * math.sqrt(max(noise_var, EPS))
+    shifted_raw = raw + noise
+    return (shifted_raw - mu) / max(sd, EPS)
+
+
+def prepared_endpoint_environment(data: Dict[str, Any], dataset: str, environment: str) -> Tuple[torch.Tensor, torch.Tensor, np.ndarray]:
+    """Reproduce the benchmark ordering exactly: select the 160 endpoint population first, then shift it.
+
+    The deterministic noise generator is shape-dependent. Shifting only the 40 causal conditions would
+    not reproduce the benchmark's shifted endpoint values, so we shift the full frozen endpoint population
+    and only then take the frozen causal subset.
+    """
+    Xt, yt = data["test"]
+    endpoint_ids = np.asarray(data["endpoint_indices"], int)
+    causal_local = np.asarray(data["causal_endpoint_local_indices"], int)
+    Xep = Xt[endpoint_ids]
+    yep = yt[endpoint_ids]
+    if environment == "shifted":
+        Xep = shifted_environment(Xep, dataset, data["meta"])
+    return Xep[causal_local], yep[causal_local], causal_local
+
+# ==================================================================================================
+# 4. MODELS / ACTIVATIONS â€” EXACT BENCHMARK DEFINITIONS
+# ==================================================================================================
+
+class ActivationModule(nn.Module):
+    def __init__(self, name: str):
+        super().__init__()
+        self.name = name
+
+    def forward(self, x):
+        if self.name == "relu":
+            return F.relu(x)
+        if self.name == "tanh":
+            return torch.tanh(x)
+        if self.name == "silu":
+            return F.silu(x)
+        raise ValueError(self.name)
+
+
+@torch.no_grad()
+def finite_secant_torch64(name: str, z: torch.Tensor, z0: torch.Tensor, tol: float = 1e-12) -> torch.Tensor:
+    z = z.to(torch.float64)
+    z0 = z0.to(torch.float64)
+    dz = z - z0
+    if name == "relu":
+        f = lambda q: torch.clamp_min(q, 0.0)
+    elif name == "tanh":
+        f = torch.tanh
+    elif name == "silu":
+        f = F.silu
+    else:
+        raise ValueError(name)
+    out = torch.empty_like(dz)
+    mask = torch.abs(dz) > tol
+    if mask.any():
+        out[mask] = (f(z[mask]) - f(z0[mask])) / dz[mask]
+    if (~mask).any():
+        q = .5 * (z[~mask] + z0[~mask])
+        if name == "relu":
+            der = (q > 0).to(q.dtype)
+        elif name == "tanh":
+            t = torch.tanh(q)
+            der = 1 - t * t
+        else:
+            s = torch.sigmoid(q)
+            der = s + q * s * (1 - s)
+        out[~mask] = der
+    return out
+
+
+class DeepMLP(nn.Module):
+    def __init__(self, hidden: Sequence[int], activation: str, output_dim: int, seed: int, input_channels: int = 1):
+        super().__init__()
+        self.activation_name = activation
+        self.act = ActivationModule(activation)
+        self.input_channels = int(input_channels)
+        dims = [self.input_channels * IMAGE_RESOLUTION * IMAGE_RESOLUTION] + list(hidden) + [output_dim]
+        torch.manual_seed(seed)
+        self.layers = nn.ModuleList([nn.Linear(dims[i], dims[i + 1], bias=False) for i in range(len(dims) - 1)])
+        self.reset_common(seed)
+
+    def reset_common(self, seed: int):
+        g = torch.Generator(device="cpu").manual_seed(seed)
+        with torch.no_grad():
+            for l in self.layers:
+                W = torch.randn(l.weight.shape, generator=g, dtype=l.weight.dtype) / math.sqrt(max(l.in_features, 1))
+                l.weight.copy_(W)
+
+    def forward(self, x):
+        h = x.reshape(x.shape[0], -1)
+        for l in self.layers[:-1]:
+            h = self.act(l(h))
+        return self.layers[-1](h)
+
+    def forward_with_states(self, x):
+        h = x.reshape(x.shape[0], -1)
+        zs = []
+        hs = [h]
+        for l in self.layers[:-1]:
+            z = l(h)
+            zs.append(z)
+            h = self.act(z)
+            hs.append(h)
+        out = self.layers[-1](h)
+        hs.append(out)
+        return out, zs, hs
+
+    def parameter_count(self):
+        return int(sum(p.numel() for p in self.parameters()))
+
+
+class DeepCNN(nn.Module):
+    def __init__(self, spec: Dict[str, Any], activation: str, output_dim: int, seed: int, input_channels: int = 1):
+        super().__init__()
+        self.activation_name = activation
+        self.act = ActivationModule(activation)
+        self.input_channels = int(input_channels)
+        hidden = list(spec["hidden_channels"])
+        kernels = list(spec["kernels"])
+        chans = [self.input_channels] + hidden + [output_dim]
+        if len(kernels) != len(chans) - 1:
+            raise ValueError("CNN kernels mismatch")
+        self.channels = chans
+        self.kernels = kernels
+        torch.manual_seed(seed)
+        self.convs = nn.ModuleList([
+            nn.Conv2d(chans[i], chans[i + 1], kernel_size=kernels[i], stride=1, padding=0, bias=False)
+            for i in range(len(kernels))
+        ])
+        self.reset_common(seed)
+        if self.output_resolution() < 1:
+            raise ValueError("CNN output resolution <1")
+
+    def reset_common(self, seed: int):
+        g = torch.Generator(device="cpu").manual_seed(seed)
+        with torch.no_grad():
+            for c in self.convs:
+                W = torch.randn(c.weight.shape, generator=g, dtype=c.weight.dtype) / math.sqrt(
+                    max(c.in_channels * c.kernel_size[0] * c.kernel_size[1], 1)
+                )
+                c.weight.copy_(W)
+
+    def spatial_shapes(self):
+        h = w = IMAGE_RESOLUTION
+        out = [(h, w)]
+        for k in self.kernels:
+            h = h - k + 1
+            w = w - k + 1
+            out.append((h, w))
+        return out
+
+    def output_resolution(self):
+        return int(self.spatial_shapes()[-1][0])
+
+    def forward(self, x):
+        h = x
+        for i, c in enumerate(self.convs):
+            z = c(h)
+            h = self.act(z) if i < len(self.convs) - 1 else z
+        return h.mean(dim=(-1, -2))
+
+    def forward_with_states(self, x):
+        h = x
+        zs = []
+        hs = [x]
+        for i, c in enumerate(self.convs):
+            z = c(h)
+            if i < len(self.convs) - 1:
+                zs.append(z)
+                h = self.act(z)
+                hs.append(h)
+            else:
+                h = z
+                hs.append(h)
+        return h.mean(dim=(-1, -2)), zs, hs
+
+    def parameter_count(self):
+        return int(sum(p.numel() for p in self.parameters()))
+
+
+def build_model(arch_id: str, activation: str, output_dim: int, dataset: str, seed_index: int) -> nn.Module:
+    s = model_seed(arch_id, dataset, seed_index)
+    input_channels = 1 if dataset == "fmnist" else 3
+    if arch_id in MLP_ARCHS:
+        return DeepMLP(MLP_ARCHS[arch_id], activation, output_dim, s, input_channels=input_channels).to(DEVICE)
+    if arch_id in CNN_ARCHS:
+        return DeepCNN(CNN_ARCHS[arch_id], activation, output_dim, s, input_channels=input_channels).to(DEVICE)
+    raise KeyError(f"Unknown architecture {arch_id}")
+
+# ==================================================================================================
+# 5. INITIAL-SIGNAL CALIBRATION / OPTIMIZERS / TRAINING
+# ==================================================================================================
+
+@torch.no_grad()
+def calibrate_initial_signal(model: nn.Module, Xcal: torch.Tensor, target_var: float = 1.0):
+    model.eval()
+    h = Xcal[:min(len(Xcal), 256)].to(DEVICE)
+    scales = []
+    if isinstance(model, DeepMLP):
+        h = h.reshape(h.shape[0], -1)
+        for l in model.layers[:-1]:
+            z = l(h)
+            sd = float(torch.std(z, unbiased=False).item())
+            sc = float(np.clip(math.sqrt(target_var) / max(sd, 1e-6), .15, 6.0))
+            l.weight.mul_(sc)
+            h = model.act(l(h))
+            scales.append(sc)
+        scales.append(1.0)
+    else:
+        for i, c in enumerate(model.convs):
+            z = c(h)
+            if i < len(model.convs) - 1:
+                sd = float(torch.std(z, unbiased=False).item())
+                sc = float(np.clip(math.sqrt(target_var) / max(sd, 1e-6), .15, 6.0))
+                c.weight.mul_(sc)
+                h = model.act(c(h))
+                scales.append(sc)
+            else:
+                scales.append(1.0)
+    return scales
+
+
+def make_optimizer(model: nn.Module, name: str):
+    lr = LEARNING_RATES[name]
+    if name == "sgdm":
+        return torch.optim.SGD(model.parameters(), lr=lr, momentum=.9, weight_decay=WEIGHT_DECAY)
+    if name == "rmsprop":
+        return torch.optim.RMSprop(model.parameters(), lr=lr, alpha=.99, weight_decay=WEIGHT_DECAY)
+    if name == "adam":
+        return torch.optim.Adam(model.parameters(), lr=lr, weight_decay=WEIGHT_DECAY)
+    raise ValueError(name)
+
+
+@torch.no_grad()
+def evaluate_performance(model: nn.Module, X: torch.Tensor, y: torch.Tensor, task: str, chunk: int = 1024) -> Dict[str, float]:
+    model.eval()
+    total_loss = 0.0
+    total = 0
+    correct = 0
+    for lo in range(0, len(X), chunk):
+        xb = X[lo:lo + chunk].to(DEVICE)
+        yb = y[lo:lo + chunk].to(DEVICE)
+        pred = model(xb)
+        if task == "classification":
+            loss = F.cross_entropy(pred, yb, reduction="sum")
+            correct += int((pred.argmax(1) == yb).sum().item())
+            total += len(yb)
+        else:
+            loss = torch.sum((pred - yb) ** 2)
+            total += int(yb.numel())
+        total_loss += float(loss.item())
+    out = {"loss": total_loss / max(total, 1)}
+    if task == "classification":
+        out["accuracy"] = correct / max(total, 1)
+    return out
+
+
+def loss_batch(pred: torch.Tensor, y: torch.Tensor, task: str):
+    return F.cross_entropy(pred, y) if task == "classification" else F.mse_loss(pred, y)
+
+
+def train_or_resume_one(row: pd.Series, data: Dict[str, Any]):
+    """Exact benchmark training logic, stopping only to retain the best-validation checkpoint.
+
+    The trained checkpoint is persisted before any intervention analysis. Resume never retrains a
+    completed model. The model is returned only when needed by callers; the normal training stage
+    releases it immediately to keep VRAM bounded.
+    """
+    rid = str(row.run_id)
+    if RESUME and training_complete(rid):
+        return
+
+    Xtr, ytr = data["train"]
+    Xv, yv = data["val"]
+    Xt, yt = data["test"]
+    cp = checkpoint_path(rid)
+    model = build_model(str(row.arch_id), str(row.activation), output_dim_for(str(row.dataset)), str(row.dataset), int(row.seed_index))
+
+    if RESUME and cp.exists():
+        chk = torch.load(cp, map_location="cpu")
+        model.load_state_dict(chk["state_dict"])
+        meta = dict(chk.get("meta", {}))
+        meta.update({
+            "run_id": rid,
+            "dataset": row.dataset,
+            "task": row.task,
+            "family": row.family,
+            "arch_id": row.arch_id,
+            "optimizer": row.optimizer,
+            "activation": row.activation,
+            "seed_index": int(row.seed_index),
+            "parameter_count": model.parameter_count(),
+        })
+        hist_df = safe_read_csv(training_part_path(rid, "history"))
+        hist = hist_df.to_dict("records") if not hist_df.empty else []
+    else:
+        cal_scales = calibrate_initial_signal(model, Xtr)
+        opt = make_optimizer(model, str(row.optimizer))
+        task = str(row.task)
+        init = evaluate_performance(model, Xv, yv, task)
+        best_metric = init["loss"]
+        best_epoch = 0
+        best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+        hist = []
+        diverged = False
+
+        epoch_bar = tqdm(range(1, MAX_EPOCH + 1), desc=f"Train {rid}", leave=False)
+        for epoch in epoch_bar:
+            model.train()
+            losses = []
+            for ids in deterministic_batches(len(Xtr), epoch - 1, int(row.seed_index), BATCH_SIZE):
+                xb = Xtr[ids].to(DEVICE)
+                yb = ytr[ids].to(DEVICE)
+                opt.zero_grad(set_to_none=True)
+                pred = model(xb)
+                loss = loss_batch(pred, yb, task)
+                if not torch.isfinite(loss):
+                    diverged = True
+                    break
+                loss.backward()
+                opt.step()
+                losses.append(float(loss.item()))
+            if diverged:
+                break
+            val = evaluate_performance(model, Xv, yv, task)
+            hist.append({
+                "run_id": rid,
+                "epoch": epoch,
+                "train_loss": float(np.mean(losses)) if losses else np.nan,
+                "val_loss": val["loss"],
+                "val_accuracy": val.get("accuracy", np.nan),
+            })
+            epoch_bar.set_postfix(val=f"{val['loss']:.4g}", best=f"{best_metric:.4g}")
+            if np.isfinite(val["loss"]) and val["loss"] < best_metric:
+                best_metric = val["loss"]
+                best_epoch = epoch
+                best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+            if not np.isfinite(val["loss"]) or val["loss"] > 1e10:
+                diverged = True
+                break
+
+        model.load_state_dict(best_state)
+        model.to(DEVICE).eval()
+        ptest = evaluate_performance(model, Xt, yt, task)
+        meta = {
+            "run_id": rid,
+            "dataset": row.dataset,
+            "task": task,
+            "family": row.family,
+            "arch_id": row.arch_id,
+            "optimizer": row.optimizer,
+            "activation": row.activation,
+            "seed_index": int(row.seed_index),
+            "parameter_count": model.parameter_count(),
+            "best_epoch": best_epoch,
+            "best_val_loss": best_metric,
+            "best_test_loss": ptest["loss"],
+            "best_test_accuracy": ptest.get("accuracy", np.nan),
+            "diverged": diverged,
+            "calibration_scales_json": json.dumps([float(x) for x in cal_scales]),
+        }
+        torch.save({"state_dict": best_state, "meta": meta}, cp)
+        atomic_csv(pd.DataFrame([meta]), training_part_path(rid, "summary"))
+        atomic_csv(pd.DataFrame(hist), training_part_path(rid, "history"))
+        del opt
+
+    if not training_part_path(rid, "summary").exists():
+        atomic_csv(pd.DataFrame([meta]), training_part_path(rid, "summary"))
+    if not training_part_path(rid, "history").exists():
+        atomic_csv(pd.DataFrame(hist), training_part_path(rid, "history"))
+
+    del model
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
+def aggregate_training_parts(manifest: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+    summaries, histories = [], []
+    for rid in manifest.run_id.astype(str):
+        s = safe_read_csv(training_part_path(rid, "summary"))
+        h = safe_read_csv(training_part_path(rid, "history"))
+        if len(s):
+            summaries.append(s)
+        if len(h):
+            histories.append(h)
+    summary = pd.concat(summaries, ignore_index=True) if summaries else pd.DataFrame()
+    history = pd.concat(histories, ignore_index=True) if histories else pd.DataFrame()
+    atomic_csv(summary, OUTDIR / "tables" / "training_summary.csv")
+    atomic_csv(history, OUTDIR / "tables" / "training_history.csv")
+    return {"summary": summary, "history": history}
+
+# ==================================================================================================
+# 5. BASELINE PATH STATES â€” COPIED FROM THE BENCHMARK LOGIC
+# ==================================================================================================
+
+def _normalize_rows(t: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    s = t.sum(dim=tuple(range(1, t.ndim)))
+    valid = torch.isfinite(s) & (s > 0)
+    safe = torch.where(valid, s, torch.ones_like(s))
+    out = t / safe.reshape((-1,) + ((1,) * (t.ndim - 1)))
+    out = torch.where(valid.reshape((-1,) + ((1,) * (t.ndim - 1))), out, torch.zeros_like(out))
+    return out, s
+
+
+@torch.no_grad()
+def mlp_response_sq(model: DeepMLP, X: torch.Tensor, X0: torch.Tensor) -> List[torch.Tensor]:
+    _, z, _ = model.forward_with_states(X.to(DEVICE))
+    _, z0, _ = model.forward_with_states(X0.to(DEVICE))
+    return [torch.square(finite_secant_torch64(model.activation_name, a, b)) for a, b in zip(z, z0)]
+
+
+@torch.no_grad()
+def mlp_log_partition_q(model: DeepMLP, source_sq: torch.Tensor, response_sq: List[torch.Tensor], target_idx: torch.Tensor, q: float) -> torch.Tensor:
+    src = torch.pow(torch.clamp(source_sq.to(DEVICE, dtype=torch.float64), min=0.0), float(q))
+    a, s0 = _normalize_rows(src)
+    valid = torch.isfinite(s0) & (s0 > 0)
+    logscale = torch.where(valid, torch.log(torch.clamp(s0, min=EPS)), torch.full_like(s0, -torch.inf))
+    for i, l in enumerate(model.layers[:-1]):
+        w = torch.pow(torch.square(l.weight.to(torch.float64)), float(q))
+        a = a @ w.T
+        a = a * torch.pow(torch.clamp(response_sq[i].to(DEVICE, dtype=torch.float64), min=0.0), float(q))
+        a, sl = _normalize_rows(a)
+        good = valid & torch.isfinite(sl) & (sl > 0)
+        logscale = torch.where(good, logscale + torch.log(torch.clamp(sl, min=EPS)), torch.full_like(logscale, -torch.inf))
+        valid = good
+    Wout = torch.pow(torch.square(model.layers[-1].weight.to(torch.float64)), float(q))
+    t = target_idx.to(DEVICE).long()
+    selected = Wout[t, :]
+    z = torch.sum(a * selected, dim=1)
+    good = valid & torch.isfinite(z) & (z > 0)
+    return torch.where(good, logscale + torch.log(torch.clamp(z, min=EPS)), torch.full_like(logscale, -torch.inf))
+
+
+@torch.no_grad()
+def mlp_factor_state(model: DeepMLP, source_sq: torch.Tensor, response_sq: List[torch.Tensor], target_idx: torch.Tensor) -> Dict[str, Any]:
+    B = source_sq.shape[0]
+    src = source_sq.to(DEVICE, dtype=torch.float64)
+    resp = [r.to(DEVICE, dtype=torch.float64) for r in response_sq]
+    logZ1 = mlp_log_partition_q(model, src, resp, target_idx, 1.0)
+    logZ2 = mlp_log_partition_q(model, src, resp, target_idx, 2.0)
+    valid = torch.isfinite(logZ1)
+    alpha = []
+    a, _ = _normalize_rows(src)
+    alpha.append(a)
+    for i, l in enumerate(model.layers[:-1]):
+        a = a @ torch.square(l.weight.to(torch.float64)).T
+        a = a * resp[i]
+        a, _ = _normalize_rows(a)
+        alpha.append(a)
+    Wout2 = torch.square(model.layers[-1].weight.to(torch.float64))
+    t = target_idx.to(DEVICE).long()
+    selected = Wout2[t, :]
+    beta: List[Optional[torch.Tensor]] = [None] * len(alpha)
+    b = selected.clone()
+    b, _ = _normalize_rows(b)
+    beta[-1] = b
+    for i in range(len(model.layers) - 2, -1, -1):
+        target = beta[i + 1] * resp[i]
+        b = target @ torch.square(model.layers[i].weight.to(torch.float64))
+        b, _ = _normalize_rows(b)
+        beta[i] = b
+    node = []
+    for i in range(len(alpha)):
+        v = alpha[i] * beta[i]
+        v, _ = _normalize_rows(v)
+        node.append(v)
+    outnodes = torch.zeros((B, model.layers[-1].out_features), dtype=torch.float64, device=DEVICE)
+    outnodes[torch.arange(B, device=DEVICE), t] = 1.0
+    node.append(outnodes)
+    edge = []
+    elog = torch.zeros(B, dtype=torch.float64, device=DEVICE)
+    for i, l in enumerate(model.layers[:-1]):
+        E = (beta[i + 1] * resp[i])[:, :, None] * torch.square(l.weight.to(torch.float64))[None, :, :] * alpha[i][:, None, :]
+        den = E.sum((1, 2))
+        E = torch.where((den > 0)[:, None, None], E / torch.clamp(den[:, None, None], min=EPS), torch.zeros_like(E))
+        edge.append(E)
+        logfac = (
+            torch.log(torch.clamp(torch.square(l.weight.to(torch.float64)), min=PATH_LOG_FLOOR))[None, :, :]
+            + torch.log(torch.clamp(resp[i], min=PATH_LOG_FLOOR))[:, :, None]
+        )
+        elog += torch.sum(torch.where(E > 0, E * logfac, torch.zeros_like(E)), dim=(1, 2))
+    Eout = selected * alpha[-1]
+    den = Eout.sum(1)
+    Eout = torch.where((den > 0)[:, None], Eout / torch.clamp(den[:, None], min=EPS), torch.zeros_like(Eout))
+    EF = torch.zeros((B, model.layers[-1].out_features, model.layers[-1].in_features), dtype=torch.float64, device=DEVICE)
+    EF[torch.arange(B, device=DEVICE), t, :] = Eout
+    edge.append(EF)
+    logwout = torch.log(torch.clamp(Wout2[t, :], min=PATH_LOG_FLOOR))
+    elog += torch.sum(torch.where(Eout > 0, Eout * logwout, torch.zeros_like(Eout)), dim=1)
+    p0 = node[0]
+    elogsrc = torch.sum(torch.where(p0 > 0, p0 * torch.log(torch.clamp(src, min=PATH_LOG_FLOOR)), torch.zeros_like(p0)), dim=1)
+    elogq = elogsrc + elog
+    H = logZ1 - elogq
+    logN = math.log(model.layers[0].in_features) + sum(math.log(l.out_features) for l in model.layers[:-1])
+    Sdef = logN - H
+    eta1 = torch.exp(torch.clamp(H - logN, min=-745, max=0))
+    eta2 = torch.exp(torch.clamp(2 * logZ1 - logZ2 - logN, min=-745, max=0))
+    Sdef_norm = Sdef / max(logN, EPS)
+
+    def arr(x):
+        y = x.detach().cpu().numpy().astype(float)
+        mask = valid.detach().cpu().numpy()
+        y[~mask] = np.nan
+        return y
+
+    return {
+        "valid": valid.detach().cpu().numpy(),
+        "logZ1": logZ1.detach().cpu().numpy().astype(float),
+        "S_path": arr(H),
+        "entropy_deficit": arr(Sdef),
+        "entropy_deficit_norm": arr(Sdef_norm),
+        "eta1": arr(eta1),
+        "eta2": arr(eta2),
+        "node_flow": [v.detach().cpu().numpy() for v in node],
+        "edge_flow": [e.detach().cpu().numpy() for e in edge],
+    }
+
+
+@torch.no_grad()
+def cnn_response_sq(model: DeepCNN, X: torch.Tensor, X0: torch.Tensor) -> List[torch.Tensor]:
+    _, z, _ = model.forward_with_states(X.to(DEVICE))
+    _, z0, _ = model.forward_with_states(X0.to(DEVICE))
+    return [torch.square(finite_secant_torch64(model.activation_name, a, b)) for a, b in zip(z, z0)]
+
+
+@torch.no_grad()
+def cnn_log_partition_q(model: DeepCNN, source_sq: torch.Tensor, response_sq: List[torch.Tensor], target_idx: torch.Tensor, q: float) -> torch.Tensor:
+    src = torch.pow(torch.clamp(source_sq.to(DEVICE, dtype=torch.float64), min=0.0), float(q))
+    a, s0 = _normalize_rows(src)
+    valid = torch.isfinite(s0) & (s0 > 0)
+    logscale = torch.where(valid, torch.log(torch.clamp(s0, min=EPS)), torch.full_like(s0, -torch.inf))
+    for i, c in enumerate(model.convs):
+        w = torch.pow(torch.square(c.weight.to(torch.float64)), float(q))
+        a = F.conv2d(a, w, bias=None, stride=1, padding=0)
+        if i < len(model.convs) - 1:
+            a = a * torch.pow(torch.clamp(response_sq[i].to(DEVICE, dtype=torch.float64), min=0.0), float(q))
+        a, sl = _normalize_rows(a)
+        good = valid & torch.isfinite(sl) & (sl > 0)
+        logscale = torch.where(good, logscale + torch.log(torch.clamp(sl, min=EPS)), torch.full_like(logscale, -torch.inf))
+        valid = good
+    t = target_idx.to(DEVICE).long()
+    tmass = a[torch.arange(a.shape[0], device=DEVICE), t, :, :].sum(dim=(-1, -2))
+    good = valid & torch.isfinite(tmass) & (tmass > 0)
+    hout, wout = model.spatial_shapes()[-1]
+    g2q = (1.0 / (hout * wout)) ** (2.0 * float(q))
+    return torch.where(good, logscale + torch.log(torch.clamp(tmass, min=EPS)) + math.log(g2q), torch.full_like(logscale, -torch.inf))
+
+
+@torch.no_grad()
+def cnn_factor_state(model:DeepCNN,source_sq:torch.Tensor,response_sq:List[torch.Tensor],target_idx:torch.Tensor)->Dict[str,Any]:
+    src=source_sq.to(DEVICE,dtype=torch.float64);resp=[r.to(DEVICE,dtype=torch.float64) for r in response_sq];B=src.shape[0];logZ1=cnn_log_partition_q(model,src,resp,target_idx,1.0);logZ2=cnn_log_partition_q(model,src,resp,target_idx,2.0);valid=torch.isfinite(logZ1)
+    alpha=[];a,_=_normalize_rows(src);alpha.append(a)
+    for i,c in enumerate(model.convs):
+        a=F.conv2d(a,torch.square(c.weight.to(torch.float64)),bias=None,stride=1,padding=0)
+        if i<len(model.convs)-1:a=a*resp[i]
+        a,_=_normalize_rows(a);alpha.append(a)
+    C,H,W=alpha[-1].shape[1:];t=target_idx.to(DEVICE).long();b=torch.zeros_like(alpha[-1]);b[torch.arange(B,device=DEVICE),t,:,:]=1.0;b,_=_normalize_rows(b);beta=[None]*len(alpha);beta[-1]=b
+    for i in range(len(model.convs)-1,-1,-1):
+        target=beta[i+1]
+        if i<len(model.convs)-1:target=target*resp[i]
+        b=F.conv_transpose2d(target,torch.square(model.convs[i].weight.to(torch.float64)),bias=None,stride=1,padding=0);b,_=_normalize_rows(b);beta[i]=b
+    node=[]
+    for i in range(len(alpha)):
+        v=alpha[i]*beta[i];v,_=_normalize_rows(v);node.append(v)
+    occurrence=[];parameter=[];layer_metrics=[];elog_edges=torch.zeros(B,dtype=torch.float64,device=DEVICE)
+    for i,c in enumerate(model.convs):
+        k=int(c.kernel_size[0]);patches=F.unfold(alpha[i],kernel_size=k,stride=1,padding=0);Hout,Wout=alpha[i+1].shape[-2:];L=Hout*Wout;target=beta[i+1]
+        if i<len(model.convs)-1:target=target*resp[i]
+        target=target.reshape(B,c.out_channels,L);w2=torch.square(c.weight.to(torch.float64)).reshape(c.out_channels,c.in_channels*k*k);E=target[:,:,None,:]*w2[None,:,:,None]*patches[:,None,:,:];den=E.sum((1,2,3));E=torch.where((den>0)[:,None,None,None],E/torch.clamp(den[:,None,None,None],min=EPS),torch.zeros_like(E));E=E.reshape(B,c.out_channels,c.in_channels,k,k,Hout,Wout);P=E.sum((-1,-2));occurrence.append(E);parameter.append(P)
+        logfactor=torch.log(torch.clamp(torch.square(c.weight.to(torch.float64)),min=PATH_LOG_FLOOR))[None,:,:,:,:,None,None]
+        if i<len(model.convs)-1:logfactor=logfactor+torch.log(torch.clamp(resp[i],min=PATH_LOG_FLOOR))[:,:,None,None,None,:,:]
+        elog_edges+=torch.sum(torch.where(E>0,E*logfactor,torch.zeros_like(E)),dim=(1,2,3,4,5,6))
+        flat=E.reshape(B,-1);pflat=P.reshape(B,-1);Hocc=-torch.sum(torch.where(flat>0,flat*torch.log(torch.clamp(flat,min=PATH_LOG_FLOOR)),torch.zeros_like(flat)),1);Hpar=-torch.sum(torch.where(pflat>0,pflat*torch.log(torch.clamp(pflat,min=PATH_LOG_FLOOR)),torch.zeros_like(pflat)),1);Hreuse=Hocc-Hpar;ntheta=P[0].numel();m=Hout*Wout;Socc=math.log(E[0].numel())-Hocc;Spar=math.log(ntheta)-Hpar;Sreuse=math.log(m)-Hreuse
+        layer_metrics.append({"S_occ":Socc,"S_param":Spar,"S_reuse":Sreuse,"eta1_occ":torch.exp(-Socc),"eta1_param":torch.exp(-Spar),"eta1_reuse":torch.exp(-Sreuse),"reuse_multiplicity":float(m)})
+    p0=node[0];elogsrc=torch.sum(torch.where(p0>0,p0*torch.log(torch.clamp(src,min=PATH_LOG_FLOOR)),torch.zeros_like(p0)),dim=(1,2,3));hout,wout=model.spatial_shapes()[-1];elogq=elogsrc+elog_edges+math.log((1.0/(hout*wout))**2);Hpath=logZ1-elogq;logN=math.log(float(hout*wout))+sum(math.log(float(c.in_channels*c.kernel_size[0]*c.kernel_size[1])) for c in model.convs);Sdef=logN-Hpath;eta1=torch.exp(torch.clamp(Hpath-logN,min=-745,max=0));eta2=torch.exp(torch.clamp(2*logZ1-logZ2-logN,min=-745,max=0));Sdef_norm=Sdef/max(logN,EPS)
+    def arr(x):
+        y=x.detach().cpu().numpy().astype(float);mask=valid.detach().cpu().numpy();y[~mask]=np.nan;return y
+    return {"valid":valid.detach().cpu().numpy(),"logZ1":logZ1.detach().cpu().numpy().astype(float),"S_path":arr(Hpath),"entropy_deficit":arr(Sdef),"entropy_deficit_norm":arr(Sdef_norm),"eta1":arr(eta1),"eta2":arr(eta2),"node_flow":[v.detach().cpu().numpy() for v in node],"occurrence_flow":[e.detach().cpu().numpy() for e in occurrence],"parameter_flow":[p.detach().cpu().numpy() for p in parameter],"layer_metrics":[{k:(arr(v) if torch.is_tensor(v) else np.full(B,float(v))) for k,v in d.items()} for d in layer_metrics]}
+
+
+# ==================================================================================================
+# 6. TEMPORARY EXECUTION GATES â€” NEW OPERATOR, PARAMETERS REMAIN FIXED
+# ==================================================================================================
+
+def ones_mlp_gates(model: DeepMLP) -> List[np.ndarray]:
+    return [np.ones(tuple(l.weight.shape), dtype=np.float64) for l in model.layers]
+
+
+def ones_cnn_occurrence_gates(model: DeepCNN) -> List[np.ndarray]:
+    shapes = model.spatial_shapes()
+    out = []
+    for i, c in enumerate(model.convs):
+        k = int(c.kernel_size[0])
+        Hout, Wout = shapes[i + 1]
+        out.append(np.ones((c.out_channels, c.in_channels, k, k, Hout, Wout), dtype=np.float64))
+    return out
+
+
+def masks_to_gates(masks: List[np.ndarray], alpha: float) -> List[np.ndarray]:
+    return [np.where(np.asarray(m, bool), 1.0 - float(alpha), 1.0).astype(np.float64) for m in masks]
+
+
+@torch.no_grad()
+def mlp_forward_with_gates(model: DeepMLP, X: torch.Tensor, gates: List[np.ndarray]):
+    h = X.to(DEVICE).reshape(X.shape[0], -1)
+    zs = []
+    hs = [h]
+    for i, l in enumerate(model.layers):
+        g = torch.as_tensor(gates[i], dtype=l.weight.dtype, device=DEVICE)
+        z = F.linear(h, l.weight * g, bias=None)
+        if i < len(model.layers) - 1:
+            zs.append(z)
+            h = model.act(z)
+            hs.append(h)
+        else:
+            out = z
+            hs.append(out)
+    return out, zs, hs
+
+
+@torch.no_grad()
+def cnn_occurrence_linear(h: torch.Tensor, conv: nn.Conv2d, gate: np.ndarray) -> torch.Tensor:
+    """Exact occurrence-resolved convolution used only for the intervention.
+
+    gate shape: [Cout,Cin,k,k,Hout,Wout]. The stored Conv2d.weight tensor is never modified.
+    """
+    k = int(conv.kernel_size[0])
+    patches = F.unfold(h, kernel_size=k, stride=1, padding=0)  # [B,P,L]
+    B, P, L = patches.shape
+    Hout = h.shape[-2] - k + 1
+    Wout = h.shape[-1] - k + 1
+    w = conv.weight.reshape(conv.out_channels, P)
+    g = torch.as_tensor(gate, dtype=h.dtype, device=h.device).reshape(conv.out_channels, P, L)
+    coeff = w[:, :, None] * g
+    zflat = torch.einsum("bpl,opl->bol", patches, coeff)
+    return zflat.reshape(B, conv.out_channels, Hout, Wout)
+
+
+@torch.no_grad()
+def cnn_forward_with_gates(model: DeepCNN, X: torch.Tensor, gates: List[np.ndarray]):
+    h = X.to(DEVICE)
+    zs = []
+    hs = [h]
+    for i, c in enumerate(model.convs):
+        z = cnn_occurrence_linear(h, c, gates[i])
+        if i < len(model.convs) - 1:
+            zs.append(z)
+            h = model.act(z)
+            hs.append(h)
+        else:
+            h = z
+            hs.append(h)
+    return h.mean(dim=(-1, -2)), zs, hs
+
+
+@torch.no_grad()
+def gated_response_sq(model: nn.Module, X: torch.Tensor, X0: torch.Tensor, gates: List[np.ndarray]) -> Tuple[List[torch.Tensor], torch.Tensor, torch.Tensor, List[torch.Tensor], List[torch.Tensor]]:
+    if isinstance(model, DeepMLP):
+        out, z, hs = mlp_forward_with_gates(model, X, gates)
+        out0, z0, hs0 = mlp_forward_with_gates(model, X0, gates)
+    else:
+        out, z, hs = cnn_forward_with_gates(model, X, gates)
+        out0, z0, hs0 = cnn_forward_with_gates(model, X0, gates)
+    resp = [torch.square(finite_secant_torch64(model.activation_name, a, b)) for a, b in zip(z, z0)]
+    return resp, out, out0, hs, hs0
+
+# ==================================================================================================
+# 7. GATED MLP DYNAMIC PROGRAM
+# ==================================================================================================
+
+@torch.no_grad()
+def mlp_log_partition_q_gated(model: DeepMLP, source_sq: torch.Tensor, response_sq: List[torch.Tensor], target_idx: torch.Tensor, q: float, gates: List[np.ndarray]) -> torch.Tensor:
+    src = torch.pow(torch.clamp(source_sq.to(DEVICE, dtype=torch.float64), min=0.0), float(q))
+    a, s0 = _normalize_rows(src)
+    valid = torch.isfinite(s0) & (s0 > 0)
+    logscale = torch.where(valid, torch.log(torch.clamp(s0, min=EPS)), torch.full_like(s0, -torch.inf))
+    for i, l in enumerate(model.layers[:-1]):
+        g2 = torch.square(torch.as_tensor(gates[i], dtype=torch.float64, device=DEVICE))
+        local = torch.square(l.weight.to(torch.float64)) * g2
+        wq = torch.pow(torch.clamp(local, min=0.0), float(q))
+        a = a @ wq.T
+        a = a * torch.pow(torch.clamp(response_sq[i].to(DEVICE, dtype=torch.float64), min=0.0), float(q))
+        a, sl = _normalize_rows(a)
+        good = valid & torch.isfinite(sl) & (sl > 0)
+        logscale = torch.where(good, logscale + torch.log(torch.clamp(sl, min=EPS)), torch.full_like(logscale, -torch.inf))
+        valid = good
+    gout2 = torch.square(torch.as_tensor(gates[-1], dtype=torch.float64, device=DEVICE))
+    local_out = torch.square(model.layers[-1].weight.to(torch.float64)) * gout2
+    Wout = torch.pow(torch.clamp(local_out, min=0.0), float(q))
+    t = target_idx.to(DEVICE).long()
+    selected = Wout[t, :]
+    z = torch.sum(a * selected, dim=1)
+    good = valid & torch.isfinite(z) & (z > 0)
+    return torch.where(good, logscale + torch.log(torch.clamp(z, min=EPS)), torch.full_like(logscale, -torch.inf))
+
+
+@torch.no_grad()
+def mlp_factor_state_gated(model: DeepMLP, source_sq: torch.Tensor, response_sq: List[torch.Tensor], target_idx: torch.Tensor, gates: List[np.ndarray]) -> Dict[str, Any]:
+    B = source_sq.shape[0]
+    src = source_sq.to(DEVICE, dtype=torch.float64)
+    resp = [r.to(DEVICE, dtype=torch.float64) for r in response_sq]
+    logZ1 = mlp_log_partition_q_gated(model, src, resp, target_idx, 1.0, gates)
+    logZ2 = mlp_log_partition_q_gated(model, src, resp, target_idx, 2.0, gates)
+    valid = torch.isfinite(logZ1)
+
+    edge_local = []
+    for i, l in enumerate(model.layers):
+        g2 = torch.square(torch.as_tensor(gates[i], dtype=torch.float64, device=DEVICE))
+        edge_local.append(torch.square(l.weight.to(torch.float64)) * g2)
+
+    alpha = []
+    a, _ = _normalize_rows(src)
+    alpha.append(a)
+    for i, _ in enumerate(model.layers[:-1]):
+        a = a @ edge_local[i].T
+        a = a * resp[i]
+        a, _ = _normalize_rows(a)
+        alpha.append(a)
+
+    t = target_idx.to(DEVICE).long()
+    selected = edge_local[-1][t, :]
+    beta: List[Optional[torch.Tensor]] = [None] * len(alpha)
+    b = selected.clone()
+    b, _ = _normalize_rows(b)
+    beta[-1] = b
+    for i in range(len(model.layers) - 2, -1, -1):
+        target = beta[i + 1] * resp[i]
+        b = target @ edge_local[i]
+        b, _ = _normalize_rows(b)
+        beta[i] = b
+
+    node = []
+    for i in range(len(alpha)):
+        v = alpha[i] * beta[i]
+        v, _ = _normalize_rows(v)
+        node.append(v)
+    outnodes = torch.zeros((B, model.layers[-1].out_features), dtype=torch.float64, device=DEVICE)
+    outnodes[torch.arange(B, device=DEVICE), t] = 1.0
+    node.append(outnodes)
+
+    edge = []
+    elog = torch.zeros(B, dtype=torch.float64, device=DEVICE)
+    for i, _ in enumerate(model.layers[:-1]):
+        E = (beta[i + 1] * resp[i])[:, :, None] * edge_local[i][None, :, :] * alpha[i][:, None, :]
+        den = E.sum((1, 2))
+        E = torch.where((den > 0)[:, None, None], E / torch.clamp(den[:, None, None], min=EPS), torch.zeros_like(E))
+        edge.append(E)
+        logfac = torch.log(torch.clamp(edge_local[i], min=PATH_LOG_FLOOR))[None, :, :] + torch.log(torch.clamp(resp[i], min=PATH_LOG_FLOOR))[:, :, None]
+        elog += torch.sum(torch.where(E > 0, E * logfac, torch.zeros_like(E)), dim=(1, 2))
+
+    Eout = selected * alpha[-1]
+    den = Eout.sum(1)
+    Eout = torch.where((den > 0)[:, None], Eout / torch.clamp(den[:, None], min=EPS), torch.zeros_like(Eout))
+    EF = torch.zeros((B, model.layers[-1].out_features, model.layers[-1].in_features), dtype=torch.float64, device=DEVICE)
+    EF[torch.arange(B, device=DEVICE), t, :] = Eout
+    edge.append(EF)
+    logwout = torch.log(torch.clamp(selected, min=PATH_LOG_FLOOR))
+    elog += torch.sum(torch.where(Eout > 0, Eout * logwout, torch.zeros_like(Eout)), dim=1)
+
+    p0 = node[0]
+    elogsrc = torch.sum(torch.where(p0 > 0, p0 * torch.log(torch.clamp(src, min=PATH_LOG_FLOOR)), torch.zeros_like(p0)), dim=1)
+    H = logZ1 - (elogsrc + elog)
+    logN = math.log(model.layers[0].in_features) + sum(math.log(l.out_features) for l in model.layers[:-1])
+    Sdef = logN - H
+    eta1 = torch.exp(torch.clamp(H - logN, min=-745, max=0))
+    eta2 = torch.exp(torch.clamp(2 * logZ1 - logZ2 - logN, min=-745, max=0))
+    Sdef_norm = Sdef / max(logN, EPS)
+
+    def arr(x):
+        y = x.detach().cpu().numpy().astype(float)
+        mask = valid.detach().cpu().numpy()
+        y[~mask] = np.nan
+        return y
+
+    return {
+        "valid": valid.detach().cpu().numpy(),
+        "logZ1": logZ1.detach().cpu().numpy().astype(float),
+        "S_path": arr(H),
+        "entropy_deficit": arr(Sdef),
+        "entropy_deficit_norm": arr(Sdef_norm),
+        "eta1": arr(eta1),
+        "eta2": arr(eta2),
+        "node_flow": [v.detach().cpu().numpy() for v in node],
+        "edge_flow": [e.detach().cpu().numpy() for e in edge],
+    }
+
+# ==================================================================================================
+# 8. GATED CNN OCCURRENCE-RESOLVED DYNAMIC PROGRAM
+# ==================================================================================================
+
+@torch.no_grad()
+def _cnn_occurrence_coeff(conv: nn.Conv2d, gate: np.ndarray, q: float, dtype=torch.float64) -> torch.Tensor:
+    k = int(conv.kernel_size[0])
+    w2q = torch.pow(torch.clamp(torch.square(conv.weight.to(dtype)), min=0.0), float(q))
+    g = torch.as_tensor(gate, dtype=dtype, device=DEVICE)
+    g2q = torch.pow(torch.clamp(torch.square(g), min=0.0), float(q))
+    return w2q[:, :, :, :, None, None] * g2q
+
+
+@torch.no_grad()
+def _cnn_occurrence_forward_mass(a: torch.Tensor, coeff: torch.Tensor, k: int) -> torch.Tensor:
+    """Apply occurrence-resolved nonnegative transition coefficients.
+
+    a     : [B,Cin,Hin,Win]
+    coeff : [Cout,Cin,k,k,Hout,Wout]
+    """
+    patches = F.unfold(a, kernel_size=k, stride=1, padding=0)  # [B,P,L]
+    B, P, L = patches.shape
+    O = coeff.shape[0]
+    cflat = coeff.reshape(O, P, L)
+    out = torch.einsum("bpl,opl->bol", patches, cflat)
+    Hout, Wout = coeff.shape[-2:]
+    return out.reshape(B, O, Hout, Wout)
+
+
+@torch.no_grad()
+def _cnn_occurrence_backward_mass(target: torch.Tensor, coeff: torch.Tensor, input_hw: Tuple[int, int], k: int) -> torch.Tensor:
+    B, O, Hout, Wout = target.shape
+    L = Hout * Wout
+    P = coeff.shape[1] * k * k
+    tflat = target.reshape(B, O, L)
+    cflat = coeff.reshape(O, P, L)
+    patch_mass = torch.einsum("bol,opl->bpl", tflat, cflat)
+    return F.fold(patch_mass, output_size=input_hw, kernel_size=k, stride=1, padding=0)
+
+
+@torch.no_grad()
+def cnn_log_partition_q_gated(model: DeepCNN, source_sq: torch.Tensor, response_sq: List[torch.Tensor], target_idx: torch.Tensor, q: float, gates: List[np.ndarray]) -> torch.Tensor:
+    src = torch.pow(torch.clamp(source_sq.to(DEVICE, dtype=torch.float64), min=0.0), float(q))
+    a, s0 = _normalize_rows(src)
+    valid = torch.isfinite(s0) & (s0 > 0)
+    logscale = torch.where(valid, torch.log(torch.clamp(s0, min=EPS)), torch.full_like(s0, -torch.inf))
+    for i, c in enumerate(model.convs):
+        k = int(c.kernel_size[0])
+        coeff = _cnn_occurrence_coeff(c, gates[i], q, dtype=torch.float64)
+        a = _cnn_occurrence_forward_mass(a, coeff, k)
+        if i < len(model.convs) - 1:
+            a = a * torch.pow(torch.clamp(response_sq[i].to(DEVICE, dtype=torch.float64), min=0.0), float(q))
+        a, sl = _normalize_rows(a)
+        good = valid & torch.isfinite(sl) & (sl > 0)
+        logscale = torch.where(good, logscale + torch.log(torch.clamp(sl, min=EPS)), torch.full_like(logscale, -torch.inf))
+        valid = good
+    t = target_idx.to(DEVICE).long()
+    tmass = a[torch.arange(a.shape[0], device=DEVICE), t, :, :].sum(dim=(-1, -2))
+    good = valid & torch.isfinite(tmass) & (tmass > 0)
+    hout, wout = model.spatial_shapes()[-1]
+    gap_q = (1.0 / (hout * wout)) ** (2.0 * float(q))
+    return torch.where(good, logscale + torch.log(torch.clamp(tmass, min=EPS)) + math.log(gap_q), torch.full_like(logscale, -torch.inf))
+
+
+@torch.no_grad()
+def cnn_factor_state_gated(model: DeepCNN, source_sq: torch.Tensor, response_sq: List[torch.Tensor], target_idx: torch.Tensor, gates: List[np.ndarray]) -> Dict[str, Any]:
+    src = source_sq.to(DEVICE, dtype=torch.float64)
+    resp = [r.to(DEVICE, dtype=torch.float64) for r in response_sq]
+    B = src.shape[0]
+    logZ1 = cnn_log_partition_q_gated(model, src, resp, target_idx, 1.0, gates)
+    logZ2 = cnn_log_partition_q_gated(model, src, resp, target_idx, 2.0, gates)
+    valid = torch.isfinite(logZ1)
+
+    coeffs = []
+    for i, c in enumerate(model.convs):
+        coeffs.append(_cnn_occurrence_coeff(c, gates[i], 1.0, dtype=torch.float64))
+
+    alpha = []
+    a, _ = _normalize_rows(src)
+    alpha.append(a)
+    for i, c in enumerate(model.convs):
+        k = int(c.kernel_size[0])
+        a = _cnn_occurrence_forward_mass(a, coeffs[i], k)
+        if i < len(model.convs) - 1:
+            a = a * resp[i]
+        a, _ = _normalize_rows(a)
+        alpha.append(a)
+
+    t = target_idx.to(DEVICE).long()
+    b = torch.zeros_like(alpha[-1])
+    b[torch.arange(B, device=DEVICE), t, :, :] = 1.0
+    b, _ = _normalize_rows(b)
+    beta: List[Optional[torch.Tensor]] = [None] * len(alpha)
+    beta[-1] = b
+    for i in range(len(model.convs) - 1, -1, -1):
+        target = beta[i + 1]
+        if i < len(model.convs) - 1:
+            target = target * resp[i]
+        k = int(model.convs[i].kernel_size[0])
+        input_hw = tuple(alpha[i].shape[-2:])
+        b = _cnn_occurrence_backward_mass(target, coeffs[i], input_hw, k)
+        b, _ = _normalize_rows(b)
+        beta[i] = b
+
+    node = []
+    for i in range(len(alpha)):
+        v = alpha[i] * beta[i]
+        v, _ = _normalize_rows(v)
+        node.append(v)
+
+    occurrence = []
+    parameter = []
+    elog_edges = torch.zeros(B, dtype=torch.float64, device=DEVICE)
+    for i, c in enumerate(model.convs):
+        k = int(c.kernel_size[0])
+        patches = F.unfold(alpha[i], kernel_size=k, stride=1, padding=0)
+        Hout, Wout = alpha[i + 1].shape[-2:]
+        L = Hout * Wout
+        target = beta[i + 1]
+        if i < len(model.convs) - 1:
+            target = target * resp[i]
+        target_flat = target.reshape(B, c.out_channels, L)
+        coeff_flat = coeffs[i].reshape(c.out_channels, c.in_channels * k * k, L)
+        E = target_flat[:, :, None, :] * coeff_flat[None, :, :, :] * patches[:, None, :, :]
+        den = E.sum((1, 2, 3))
+        E = torch.where((den > 0)[:, None, None, None], E / torch.clamp(den[:, None, None, None], min=EPS), torch.zeros_like(E))
+        E = E.reshape(B, c.out_channels, c.in_channels, k, k, Hout, Wout)
+        P = E.sum((-1, -2))
+        occurrence.append(E)
+        parameter.append(P)
+
+        logfactor = torch.log(torch.clamp(coeffs[i], min=PATH_LOG_FLOOR))[None, :, :, :, :, :, :]
+        if i < len(model.convs) - 1:
+            logfactor = logfactor + torch.log(torch.clamp(resp[i], min=PATH_LOG_FLOOR))[:, :, None, None, None, :, :]
+        elog_edges += torch.sum(torch.where(E > 0, E * logfactor, torch.zeros_like(E)), dim=(1, 2, 3, 4, 5, 6))
+
+    p0 = node[0]
+    elogsrc = torch.sum(
+        torch.where(p0 > 0, p0 * torch.log(torch.clamp(src, min=PATH_LOG_FLOOR)), torch.zeros_like(p0)),
+        dim=(1, 2, 3),
+    )
+    hout, wout = model.spatial_shapes()[-1]
+    Hpath = logZ1 - (elogsrc + elog_edges + math.log((1.0 / (hout * wout)) ** 2))
+    logN = math.log(float(hout * wout)) + sum(math.log(float(c.in_channels * c.kernel_size[0] * c.kernel_size[1])) for c in model.convs)
+    Sdef = logN - Hpath
+    eta1 = torch.exp(torch.clamp(Hpath - logN, min=-745, max=0))
+    eta2 = torch.exp(torch.clamp(2 * logZ1 - logZ2 - logN, min=-745, max=0))
+    Sdef_norm = Sdef / max(logN, EPS)
+
+    def arr(x):
+        y = x.detach().cpu().numpy().astype(float)
+        mask = valid.detach().cpu().numpy()
+        y[~mask] = np.nan
+        return y
+
+    return {
+        "valid": valid.detach().cpu().numpy(),
+        "logZ1": logZ1.detach().cpu().numpy().astype(float),
+        "S_path": arr(Hpath),
+        "entropy_deficit": arr(Sdef),
+        "entropy_deficit_norm": arr(Sdef_norm),
+        "eta1": arr(eta1),
+        "eta2": arr(eta2),
+        "node_flow": [v.detach().cpu().numpy() for v in node],
+        "occurrence_flow": [e.detach().cpu().numpy() for e in occurrence],
+        "parameter_flow": [p.detach().cpu().numpy() for p in parameter],
+    }
+
+# ==================================================================================================
+# 9. EXACT PATH-MEASURE HELLINGER DISTANCE BY CROSS-PARTITION DYNAMIC PROGRAM
+# ==================================================================================================
+
+@torch.no_grad()
+def mlp_cross_log_partition(model: DeepMLP, source_sq_a: torch.Tensor, source_sq_b: torch.Tensor,
+                            response_sq_a: List[torch.Tensor], response_sq_b: List[torch.Tensor],
+                            target_idx: torch.Tensor, gates_b: List[np.ndarray]) -> torch.Tensor:
+    src = torch.sqrt(torch.clamp(source_sq_a.to(DEVICE, dtype=torch.float64), min=0.0) *
+                     torch.clamp(source_sq_b.to(DEVICE, dtype=torch.float64), min=0.0))
+    a, s0 = _normalize_rows(src)
+    valid = torch.isfinite(s0) & (s0 > 0)
+    logscale = torch.where(valid, torch.log(torch.clamp(s0, min=EPS)), torch.full_like(s0, -torch.inf))
+    for i, l in enumerate(model.layers[:-1]):
+        g = torch.as_tensor(gates_b[i], dtype=torch.float64, device=DEVICE)
+        edge_cross = torch.square(l.weight.to(torch.float64)) * torch.clamp(g, min=0.0)
+        a = a @ edge_cross.T
+        r_cross = torch.sqrt(torch.clamp(response_sq_a[i].to(DEVICE, dtype=torch.float64), min=0.0) *
+                             torch.clamp(response_sq_b[i].to(DEVICE, dtype=torch.float64), min=0.0))
+        a = a * r_cross
+        a, sl = _normalize_rows(a)
+        good = valid & torch.isfinite(sl) & (sl > 0)
+        logscale = torch.where(good, logscale + torch.log(torch.clamp(sl, min=EPS)), torch.full_like(logscale, -torch.inf))
+        valid = good
+    gout = torch.as_tensor(gates_b[-1], dtype=torch.float64, device=DEVICE)
+    edge_cross_out = torch.square(model.layers[-1].weight.to(torch.float64)) * torch.clamp(gout, min=0.0)
+    t = target_idx.to(DEVICE).long()
+    selected = edge_cross_out[t, :]
+    z = torch.sum(a * selected, dim=1)
+    good = valid & torch.isfinite(z) & (z > 0)
+    return torch.where(good, logscale + torch.log(torch.clamp(z, min=EPS)), torch.full_like(logscale, -torch.inf))
+
+
+@torch.no_grad()
+def cnn_cross_log_partition(model: DeepCNN, source_sq_a: torch.Tensor, source_sq_b: torch.Tensor,
+                            response_sq_a: List[torch.Tensor], response_sq_b: List[torch.Tensor],
+                            target_idx: torch.Tensor, gates_b: List[np.ndarray]) -> torch.Tensor:
+    src = torch.sqrt(torch.clamp(source_sq_a.to(DEVICE, dtype=torch.float64), min=0.0) *
+                     torch.clamp(source_sq_b.to(DEVICE, dtype=torch.float64), min=0.0))
+    a, s0 = _normalize_rows(src)
+    valid = torch.isfinite(s0) & (s0 > 0)
+    logscale = torch.where(valid, torch.log(torch.clamp(s0, min=EPS)), torch.full_like(s0, -torch.inf))
+    for i, c in enumerate(model.convs):
+        k = int(c.kernel_size[0])
+        g = torch.as_tensor(gates_b[i], dtype=torch.float64, device=DEVICE)
+        edge_cross = torch.square(c.weight.to(torch.float64))[:, :, :, :, None, None] * torch.clamp(g, min=0.0)
+        a = _cnn_occurrence_forward_mass(a, edge_cross, k)
+        if i < len(model.convs) - 1:
+            r_cross = torch.sqrt(torch.clamp(response_sq_a[i].to(DEVICE, dtype=torch.float64), min=0.0) *
+                                 torch.clamp(response_sq_b[i].to(DEVICE, dtype=torch.float64), min=0.0))
+            a = a * r_cross
+        a, sl = _normalize_rows(a)
+        good = valid & torch.isfinite(sl) & (sl > 0)
+        logscale = torch.where(good, logscale + torch.log(torch.clamp(sl, min=EPS)), torch.full_like(logscale, -torch.inf))
+        valid = good
+    t = target_idx.to(DEVICE).long()
+    tmass = a[torch.arange(a.shape[0], device=DEVICE), t, :, :].sum(dim=(-1, -2))
+    good = valid & torch.isfinite(tmass) & (tmass > 0)
+    hout, wout = model.spatial_shapes()[-1]
+    gap_cross = (1.0 / (hout * wout)) ** 2
+    return torch.where(good, logscale + torch.log(torch.clamp(tmass, min=EPS)) + math.log(gap_cross), torch.full_like(logscale, -torch.inf))
+
+
+def hellinger_from_logs(logZ_base: float, logZ_int: float, logZ_cross: float) -> float:
+    if not (np.isfinite(logZ_base) and np.isfinite(logZ_int) and np.isfinite(logZ_cross)):
+        return np.nan
+    log_bc = float(logZ_cross - 0.5 * (logZ_base + logZ_int))
+    bc = float(np.exp(np.clip(log_bc, -745, 0.0)))
+    bc = min(1.0, max(0.0, bc))
+    return float(math.sqrt(max(0.0, 1.0 - bc)))
+
+# ==================================================================================================
+# 10. TARGET CONSTRUCTION
+# ==================================================================================================
+
+def flow_list_from_state(state: Dict[str, Any], family: str) -> List[np.ndarray]:
+    if family == "mlp":
+        return [np.asarray(x[0], float) for x in state["edge_flow"]]
+    return [np.asarray(x[0], float) for x in state["occurrence_flow"]]
+
+
+def select_realized_masks(flow_list: List[np.ndarray], fraction: float) -> Tuple[List[np.ndarray], List[Dict[str, Any]]]:
+    """Select high-flow targets within each layer while preserving a non-target realized-support pool.
+
+    The matched control is intentionally drawn from *positive realized support* outside the high-flow
+    target, not from inactive / zero-flow occurrences. Therefore each layer must retain at least as many
+    positive-support non-target occurrences as realized targets. Layers with fewer than two positive-flow
+    occurrences are not intervened upon in the primary matched design. This avoids a trivial realized-vs-
+    matched comparison in which the control is composed of computationally inactive occurrences.
+    """
+    masks = []
+    audit = []
+    for li, f in enumerate(flow_list):
+        f = np.asarray(f, float)
+        flat = f.ravel()
+        positive = np.flatnonzero(np.isfinite(flat) & (flat > 0))
+        mask = np.zeros(flat.shape, dtype=bool)
+        raw_k = int(math.ceil(float(fraction) * len(positive))) if len(positive) else 0
+        if len(positive) >= 2:
+            # Reserve an equally large positive-support pool for the matched control.
+            k = min(max(1, raw_k), len(positive) // 2)
+            order = positive[np.argsort(-flat[positive], kind="mergesort")[:k]]
+            mask[order] = True
+        else:
+            k = 0
+        mass = float(np.sum(flat[mask])) if k else 0.0
+        audit.append({
+            "layer": li,
+            "n_total": int(flat.size),
+            "n_positive_flow": int(len(positive)),
+            "n_targets": int(k),
+            "raw_fraction_target_count": int(raw_k),
+            "target_count_capped_for_matched_support": bool(k != raw_k),
+            "positive_support_fraction": float(len(positive) / max(flat.size, 1)),
+            "selected_flow_mass": mass,
+        })
+        masks.append(mask.reshape(f.shape))
+    return masks, audit
+
+
+def positive_support_masks(flow_list: List[np.ndarray]) -> List[np.ndarray]:
+    return [np.isfinite(np.asarray(f, float)) & (np.asarray(f, float) > 0) for f in flow_list]
+
+def select_top_k_masks(flow_list: List[np.ndarray], counts: List[int]) -> List[np.ndarray]:
+    masks = []
+    for li, f in enumerate(flow_list):
+        flat = np.asarray(f, float).ravel()
+        k = int(counts[li])
+        mask = np.zeros(flat.shape, dtype=bool)
+        eligible = np.flatnonzero(np.isfinite(flat) & (flat > 0))
+        if k > 0:
+            if len(eligible) < k:
+                # Structural flow should normally have ample support. We fail visibly rather than silently changing budget.
+                raise RuntimeError(f"Layer {li}: structural positive support {len(eligible)} < required target count {k}.")
+            ids = eligible[np.argsort(-flat[eligible], kind="mergesort")[:k]]
+            mask[ids] = True
+        masks.append(mask.reshape(np.asarray(f).shape))
+    return masks
+
+
+def target_counts(masks: List[np.ndarray]) -> List[int]:
+    return [int(np.sum(np.asarray(m, bool))) for m in masks]
+
+
+def jaccard_masks(a: List[np.ndarray], b: List[np.ndarray]) -> Tuple[float, List[float]]:
+    nums, dens, per = 0, 0, []
+    for x, y in zip(a, b):
+        x = np.asarray(x, bool)
+        y = np.asarray(y, bool)
+        inter = int(np.sum(x & y))
+        union = int(np.sum(x | y))
+        per.append(float(inter / union) if union else np.nan)
+        nums += inter
+        dens += union
+    return (float(nums / dens) if dens else np.nan), per
+
+
+def ordinary_activation_scores_mlp(model: DeepMLP, hs: List[torch.Tensor], hs0: List[torch.Tensor]) -> List[np.ndarray]:
+    """Ordinary source-activation magnitude for every MLP execution edge.
+
+    Matching on source activation, rather than on realized flow or weight magnitude, controls the simple
+    objection that realization-guided edges matter only because they originate from strongly active units.
+    Structural-flow targeting separately controls trained parameter/disposition prominence.
+    """
+    out = []
+    for li, l in enumerate(model.layers):
+        hx = hs[li][0].detach().to(torch.float64)
+        h0 = hs0[li][0].detach().to(torch.float64)
+        score_src = torch.sqrt(hx * hx + h0 * h0 + (hx - h0) * (hx - h0))
+        score = score_src[None, :].expand(l.out_features, l.in_features)
+        out.append(score.cpu().numpy().astype(float))
+    return out
+
+
+def ordinary_activation_scores_cnn(model: DeepCNN, hs: List[torch.Tensor], hs0: List[torch.Tensor]) -> List[np.ndarray]:
+    """Ordinary source-activation magnitude for every spatial convolutional edge occurrence."""
+    out = []
+    for li, c in enumerate(model.convs):
+        k = int(c.kernel_size[0])
+        hx = hs[li].detach().to(torch.float64)
+        h0 = hs0[li].detach().to(torch.float64)
+        sx = F.unfold(hx, kernel_size=k, stride=1, padding=0)[0]   # [P,L]
+        s0 = F.unfold(h0, kernel_size=k, stride=1, padding=0)[0]
+        src_score = torch.sqrt(sx * sx + s0 * s0 + (sx - s0) * (sx - s0))
+        score = src_score[None, :, :].expand(c.out_channels, -1, -1)
+        Hout = hx.shape[-2] - k + 1
+        Wout = hx.shape[-1] - k + 1
+        score = score.reshape(c.out_channels, c.in_channels, k, k, Hout, Wout)
+        out.append(score.cpu().numpy().astype(float))
+    return out
+
+
+def select_matched_masks(real_masks: List[np.ndarray], activation_scores: List[np.ndarray],
+                         realized_support_masks: List[np.ndarray], seed: int) -> Tuple[List[np.ndarray], List[Dict[str, Any]]]:
+    """Layer-wise matched control from the non-target part of the realized support.
+
+    Scientific role: compare the high-flow realized target against execution occurrences that are
+    (i) in the same layer, (ii) part of the same condition's positive realized support, and
+    (iii) approximately matched on ordinary source-activation magnitude, but are NOT selected by
+    high realized-flow rank. This prevents a trivial comparison against inactive zero-flow carriers
+    and automatically preserves output-conditioned topological role at the final layer/channel.
+
+    Realized flow is used only to define the eligible positive-support set and to exclude the high-flow
+    target. It is never used to rank matched candidates. Candidate ranking/matching uses only ordinary
+    source-activation magnitude.
+    """
+    masks: List[np.ndarray] = []
+    audit: List[Dict[str, Any]] = []
+    for li, (rm, sc, support) in enumerate(zip(real_masks, activation_scores, realized_support_masks)):
+        rmf = np.asarray(rm, bool).ravel()
+        sf = np.asarray(sc, float).ravel()
+        sup = np.asarray(support, bool).ravel()
+        if not (len(rmf) == len(sf) == len(sup)):
+            raise RuntimeError(f"Layer {li}: matched-control arrays have inconsistent sizes.")
+        target_ids = np.flatnonzero(rmf)
+        eligible_ids = np.flatnonzero(sup & (~rmf) & np.isfinite(sf))
+        if len(target_ids) != int(np.sum(rmf)):
+            raise RuntimeError(f"Layer {li}: realized target indexing inconsistency.")
+        if len(target_ids) and len(eligible_ids) < len(target_ids):
+            raise RuntimeError(
+                f"Layer {li}: positive realized-support matched pool {len(eligible_ids)} "
+                f"< realized target count {len(target_ids)}."
+            )
+
+        mask = np.zeros(rmf.shape, dtype=bool)
+        if len(target_ids) == 0:
+            masks.append(mask.reshape(np.asarray(rm).shape))
+            audit.append({
+                "layer": li, "n_targets": 0, "n_matched_pool": int(len(eligible_ids)),
+                "matched_activation_ks": np.nan,
+                "realized_activation_median": np.nan,
+                "matched_activation_median": np.nan,
+                "matched_to_realized_activation_median_ratio": np.nan,
+                "borrowed_fraction": 0.0,
+            })
+            continue
+
+        if not np.all(np.isfinite(sf[target_ids])):
+            raise RuntimeError(f"Layer {li}: realized target contains non-finite ordinary source-activation score.")
+
+        # Build rank bins ONLY on the positive realized support, so target and control share realized support.
+        support_ids = np.flatnonzero(sup & np.isfinite(sf))
+        sorted_ids = support_ids[np.argsort(sf[support_ids], kind="mergesort")]
+        rank_bin = np.full(len(sf), -1, dtype=np.int32)
+        bins_sorted = np.minimum(
+            MATCH_BINS - 1,
+            np.floor(np.arange(len(sorted_ids), dtype=float) * MATCH_BINS / max(len(sorted_ids), 1)).astype(np.int32),
+        )
+        rank_bin[sorted_ids] = bins_sorted
+
+        rng = np.random.default_rng(int(seed) + 104729 * li)
+        selected: List[int] = []
+        used = np.zeros(len(sf), dtype=bool)
+        borrowed = 0
+        target_bin_counts = np.bincount(rank_bin[target_ids], minlength=MATCH_BINS)
+
+        for b in range(MATCH_BINS):
+            need = int(target_bin_counts[b])
+            if need <= 0:
+                continue
+            cand = np.flatnonzero((rank_bin == b) & sup & (~rmf) & (~used) & np.isfinite(sf))
+            if len(cand) >= need:
+                pick = rng.choice(cand, size=need, replace=False)
+                selected.extend(np.asarray(pick, int).tolist())
+                used[pick] = True
+                continue
+
+            if len(cand):
+                selected.extend(cand.tolist())
+                used[cand] = True
+                need -= len(cand)
+
+            distance = 1
+            while need > 0 and distance < MATCH_BINS:
+                for bb in (b - distance, b + distance):
+                    if bb < 0 or bb >= MATCH_BINS or need <= 0:
+                        continue
+                    pool = np.flatnonzero((rank_bin == bb) & sup & (~rmf) & (~used) & np.isfinite(sf))
+                    if len(pool):
+                        take = min(need, len(pool))
+                        pick = rng.choice(pool, size=take, replace=False)
+                        selected.extend(np.asarray(pick, int).tolist())
+                        used[pick] = True
+                        need -= take
+                        borrowed += take
+                distance += 1
+
+            if need > 0:
+                pool = np.flatnonzero(sup & (~rmf) & (~used) & np.isfinite(sf))
+                if len(pool) < need:
+                    raise RuntimeError(f"Layer {li}: positive-support matched-control candidate pool exhausted.")
+                pick = rng.choice(pool, size=need, replace=False)
+                selected.extend(np.asarray(pick, int).tolist())
+                used[pick] = True
+                borrowed += need
+
+        if len(selected) != len(target_ids):
+            raise RuntimeError(f"Layer {li}: matched-control count {len(selected)} != realized count {len(target_ids)}")
+        selected_ids = np.asarray(selected, dtype=np.int64)
+        if np.any(rmf[selected_ids]):
+            raise RuntimeError(f"Layer {li}: matched control overlaps realized target.")
+        if not np.all(sup[selected_ids]):
+            raise RuntimeError(f"Layer {li}: matched control left positive realized support.")
+        mask[selected_ids] = True
+
+        rt = sf[target_ids]
+        mt = sf[selected_ids]
+        try:
+            ks = float(ks_2samp(rt, mt).statistic)
+        except Exception:
+            ks = np.nan
+        med_r = float(np.median(rt))
+        med_m = float(np.median(mt))
+        audit.append({
+            "layer": li,
+            "n_targets": int(len(target_ids)),
+            "n_matched_pool": int(len(eligible_ids)),
+            "matched_activation_ks": ks,
+            "realized_activation_median": med_r,
+            "matched_activation_median": med_m,
+            "matched_to_realized_activation_median_ratio": float(med_m / (med_r + 1e-12)),
+            "borrowed_fraction": float(borrowed / max(len(target_ids), 1)),
+        })
+        masks.append(mask.reshape(np.asarray(rm).shape))
+    return masks, audit
+
+# ==================================================================================================
+# 11. OUTPUT-MATCHED STRUCTURAL STATES
+# ==================================================================================================
+
+@torch.no_grad()
+def output_matched_structural_state(model: nn.Module, family: str, target_idx: int) -> Dict[str, Any]:
+    t = torch.tensor([int(target_idx)], dtype=torch.long)
+    if family == "mlp":
+        src = torch.ones((1, model.layers[0].in_features), dtype=torch.float64)
+        resp = [torch.ones((1, l.out_features), dtype=torch.float64, device=DEVICE) for l in model.layers[:-1]]
+        return mlp_factor_state(model, src, resp, t)
+    shapes = model.spatial_shapes()
+    src = torch.ones((1, model.channels[0], IMAGE_RESOLUTION, IMAGE_RESOLUTION), dtype=torch.float64)
+    resp = [
+        torch.ones((1, model.convs[i].out_channels, *shapes[i + 1]), dtype=torch.float64, device=DEVICE)
+        for i in range(len(model.convs) - 1)
+    ]
+    return cnn_factor_state(model, src, resp, t)
+
+# ==================================================================================================
+# 12. ONE BASELINE CONDITION + ONE INTERVENTION
+# ==================================================================================================
+
+@torch.no_grad()
+def baseline_condition(model: nn.Module, family: str, x: torch.Tensor, x0: torch.Tensor, target_idx: int) -> Dict[str, Any]:
+    t = torch.tensor([int(target_idx)], dtype=torch.long)
+    if family == "mlp":
+        resp = mlp_response_sq(model, x, x0)
+        source_sq = torch.square((x - x0).reshape(1, -1).to(torch.float64))
+        st = mlp_factor_state(model, source_sq, resp, t)
+        out, _, hs = model.forward_with_states(x.to(DEVICE))
+        out0, _, hs0 = model.forward_with_states(x0.to(DEVICE))
+    else:
+        resp = cnn_response_sq(model, x, x0)
+        source_sq = torch.square((x - x0).to(torch.float64))
+        st = cnn_factor_state(model, source_sq, resp, t)
+        out, _, hs = model.forward_with_states(x.to(DEVICE))
+        out0, _, hs0 = model.forward_with_states(x0.to(DEVICE))
+    return {
+        "state": st,
+        "response_sq": resp,
+        "source_sq": source_sq,
+        "target_tensor": t,
+        "out": out.detach(),
+        "out0": out0.detach(),
+        "hs": hs,
+        "hs0": hs0,
+    }
+
+
+@torch.no_grad()
+def intervene_condition(model: nn.Module, family: str, x: torch.Tensor, x0: torch.Tensor, target_idx: int,
+                        masks: List[np.ndarray], baseline: Dict[str, Any], alpha: float) -> Dict[str, Any]:
+    gates = masks_to_gates(masks, alpha)
+    resp_i, out_i, out0_i, hs_i, hs0_i = gated_response_sq(model, x, x0, gates)
+    t = baseline["target_tensor"]
+    source_sq = baseline["source_sq"]  # same declared input relation; gate acts only inside the network
+
+    if family == "mlp":
+        st_i = mlp_factor_state_gated(model, source_sq, resp_i, t, gates)
+    else:
+        st_i = cnn_factor_state_gated(model, source_sq, resp_i, t, gates)
+
+    valid_i = bool(st_i["valid"][0])
+    hdist = np.nan
+    if valid_i:
+        logZ0 = float(baseline["state"]["logZ1"][0])
+        logZi = float(st_i["logZ1"][0])
+        if family == "mlp":
+            logZx = float(mlp_cross_log_partition(
+                model, source_sq, source_sq, baseline["response_sq"], resp_i, t, gates
+            )[0].detach().cpu().item())
+        else:
+            logZx = float(cnn_cross_log_partition(
+                model, source_sq, source_sq, baseline["response_sq"], resp_i, t, gates
+            )[0].detach().cpu().item())
+        hdist = hellinger_from_logs(logZ0, logZi, logZx)
+
+    return {
+        "gates": gates,
+        "state": st_i,
+        "response_sq": resp_i,
+        "out": out_i,
+        "out0": out0_i,
+        "hellinger": hdist,
+        "valid": valid_i,
+    }
+
+# ==================================================================================================
+# 13. MANIFESTATION MEASURES
+# ==================================================================================================
+
+def _target_response(out: torch.Tensor, out0: torch.Tensor, target_idx: int) -> float:
+    return float((out[0, int(target_idx)] - out0[0, int(target_idx)]).detach().cpu().item())
+
+
+def _vector_response(out: torch.Tensor, out0: torch.Tensor) -> np.ndarray:
+    return (out[0] - out0[0]).detach().cpu().numpy().astype(float)
+
+
+def classification_margin(logits: torch.Tensor, target_idx: int) -> float:
+    x = logits[0].detach().cpu().numpy().astype(float)
+    t = int(target_idx)
+    other = np.delete(x, t)
+    return float(x[t] - np.max(other)) if len(other) else np.nan
+
+
+def manifestation_record(dataset: str, y: torch.Tensor, target_idx: int,
+                           base_out: torch.Tensor, base_out0: torch.Tensor,
+                           int_out: torch.Tensor, int_out0: torch.Tensor) -> Dict[str, Any]:
+    r0 = _target_response(base_out, base_out0, target_idx)
+    r1 = _target_response(int_out, int_out0, target_idx)
+    v0 = _vector_response(base_out, base_out0)
+    v1 = _vector_response(int_out, int_out0)
+    rec = {
+        "baseline_target_response": r0,
+        "intervened_target_response": r1,
+        "manifestation_abs": float(abs(r1 - r0)),
+        "manifestation_relative": float(abs(r1 - r0) / (abs(r0) + MANIFEST_EPS)),
+        "finite_response_vector_l2": float(np.linalg.norm(v1 - v0)),
+        "baseline_response_abs": float(abs(r0)),
+    }
+    if dataset == "fmnist":
+        ytrue = int(y.reshape(-1)[0].item())
+        p0 = int(torch.argmax(base_out, dim=1)[0].item())
+        p1 = int(torch.argmax(int_out, dim=1)[0].item())
+        ce0 = float(F.cross_entropy(base_out, torch.tensor([ytrue], device=base_out.device)).item())
+        ce1 = float(F.cross_entropy(int_out, torch.tensor([ytrue], device=int_out.device)).item())
+        rec.update({
+            "baseline_prediction": p0,
+            "intervened_prediction": p1,
+            "prediction_changed": bool(p0 != p1),
+            "baseline_target_margin": classification_margin(base_out, target_idx),
+            "intervened_target_margin": classification_margin(int_out, target_idx),
+            "target_margin_change": float(classification_margin(int_out, target_idx) - classification_margin(base_out, target_idx)),
+            "baseline_task_loss": ce0,
+            "intervened_task_loss": ce1,
+            "task_loss_change": ce1 - ce0,
+        })
+    else:
+        yy = float(y.reshape(-1)[0].item())
+        pred0 = float(base_out.reshape(-1)[0].item())
+        pred1 = float(int_out.reshape(-1)[0].item())
+        mse0 = (pred0 - yy) ** 2
+        mse1 = (pred1 - yy) ** 2
+        rec.update({
+            "baseline_prediction": pred0,
+            "intervened_prediction": pred1,
+            "prediction_changed": np.nan,
+            "baseline_target_margin": np.nan,
+            "intervened_target_margin": np.nan,
+            "target_margin_change": np.nan,
+            "baseline_task_loss": mse0,
+            "intervened_task_loss": mse1,
+            "task_loss_change": mse1 - mse0,
+        })
+    return rec
+
+# ==================================================================================================
+# 14. OPERATOR-LEVEL SELF TEST â€” RUNS BEFORE DATA DOWNLOAD OR LONG TRAINING
+# ==================================================================================================
+
+@torch.no_grad()
+def run_operator_selftest() -> pd.DataFrame:
+    """Fail-fast numerical/theoretical checks for the new intervention machinery.
+
+    This test deliberately needs no dataset and no trained checkpoint. It checks the new operator
+    against the already-established ungated implementation in situations where exact equivalence is
+    known. It therefore catches tensor-shape bugs, accidental parameter mutation, wrong gate powers,
+    and CNN occurrence-DP mistakes before expensive dataset loading or training starts.
+    """
+    rows: List[Dict[str, Any]] = []
+
+    def add(family: str, check: str, err: float, tol: Optional[float] = None):
+        rows.append({
+            "family": family,
+            "check": check,
+            "max_abs_error": float(err),
+            "tolerance": float(PREFLIGHT_TOL if tol is None else tol),
+        })
+
+    gen = torch.Generator(device="cpu").manual_seed(SEED + 991)
+    cases = [
+        ("mlp", DeepMLP([8, 6], "tanh", output_dim=2, seed=SEED + 11, input_channels=1),
+         torch.randn((1, 1, IMAGE_RESOLUTION, IMAGE_RESOLUTION), generator=gen), 1),
+        ("cnn", DeepCNN({"hidden_channels": [2, 2], "kernels": [3, 3, 1]}, "tanh", output_dim=2,
+                        seed=SEED + 13, input_channels=1),
+         torch.randn((1, 1, IMAGE_RESOLUTION, IMAGE_RESOLUTION), generator=gen), 1),
+    ]
+
+    for family, model, x_cpu, target_idx in cases:
+        model = model.to(DEVICE).eval()
+        x = x_cpu.to(torch.float32)
+        x0 = torch.zeros_like(x)
+        baseline = baseline_condition(model, family, x, x0, target_idx)
+        if not bool(baseline["state"]["valid"][0]):
+            raise RuntimeError(f"Operator self-test unexpectedly produced undefined {family} baseline realization.")
+        flow_key = "edge_flow" if family == "mlp" else "occurrence_flow"
+        weight_before = [p.detach().cpu().clone() for p in model.parameters()]
+
+        # 1) all-one occurrence/edge gates must be exactly the established model and realization.
+        gates1 = ones_mlp_gates(model) if family == "mlp" else ones_cnn_occurrence_gates(model)
+        resp1, out1, out01, _, _ = gated_response_sq(model, x, x0, gates1)
+        if family == "mlp":
+            st1 = mlp_factor_state_gated(model, baseline["source_sq"], resp1, baseline["target_tensor"], gates1)
+        else:
+            st1 = cnn_factor_state_gated(model, baseline["source_sq"], resp1, baseline["target_tensor"], gates1)
+        add(family, "ones_gate_forward_x", tensor_close_max(baseline["out"], out1))
+        add(family, "ones_gate_forward_x0", tensor_close_max(baseline["out0"], out01))
+        add(family, "ones_gate_eta1", abs(float(baseline["state"]["eta1"][0]) - float(st1["eta1"][0])))
+        add(family, "ones_gate_eta2", abs(float(baseline["state"]["eta2"][0]) - float(st1["eta2"][0])))
+        add(family, "ones_gate_Sdef", abs(float(baseline["state"]["entropy_deficit"][0]) - float(st1["entropy_deficit"][0])))
+        add(family, "ones_gate_flow", max_flow_diff(baseline["state"][flow_key], st1[flow_key]))
+
+        # 2) alpha=0 on an actual high-flow target must be the identity and D_H=0.
+        real_flow = flow_list_from_state(baseline["state"], family)
+        real_masks, _ = select_realized_masks(real_flow, TARGET_FRACTION)
+        zero_int = intervene_condition(model, family, x, x0, target_idx, real_masks, baseline, alpha=0.0)
+        m0 = manifestation_record("fmnist", torch.tensor([target_idx]), target_idx,
+                                  baseline["out"], baseline["out0"], zero_int["out"], zero_int["out0"])
+        add(family, "alpha0_manifestation", float(m0["manifestation_abs"]))
+        add(family, "alpha0_hellinger", float(zero_int["hellinger"]))
+
+        # 3) the matched-control construction must preserve budget, stay inside positive realized
+        # support, and remain disjoint from the high-flow realized target.
+        support = positive_support_masks(real_flow)
+        if family == "mlp":
+            scores = ordinary_activation_scores_mlp(model, baseline["hs"], baseline["hs0"])
+        else:
+            scores = ordinary_activation_scores_cnn(model, baseline["hs"], baseline["hs0"])
+        matched_masks, _ = select_matched_masks(real_masks, scores, support, SEED + 177)
+        budget_err = max(abs(a - b) for a, b in zip(target_counts(real_masks), target_counts(matched_masks)))
+        support_err = 0.0
+        overlap_err = 0.0
+        for rm, mm, sm in zip(real_masks, matched_masks, support):
+            support_err = max(support_err, float(np.sum(np.asarray(mm, bool) & (~np.asarray(sm, bool)))))
+            overlap_err = max(overlap_err, float(np.sum(np.asarray(mm, bool) & np.asarray(rm, bool))))
+        add(family, "matched_budget_identity", float(budget_err), tol=0.0)
+        add(family, "matched_inside_positive_support", support_err, tol=0.0)
+        add(family, "matched_disjoint_realized", overlap_err, tol=0.0)
+
+        # 4) Nontrivial gate equivalence. When a gate is constant across spatial reuses of a CNN
+        # parameter, the occurrence-gated system MUST equal an ordinary model whose corresponding
+        # weight tensor has been multiplied by that gate. This is a stringent check of the CNN
+        # occurrence-resolved forward map and dynamic program.
+        clone = copy.deepcopy(model).to(DEVICE).eval()
+        if family == "mlp":
+            gates_shared = ones_mlp_gates(model)
+            for li, g in enumerate(gates_shared):
+                flat = g.ravel()
+                flat[::max(3, 11 + li)] = 0.83
+                gates_shared[li] = flat.reshape(g.shape)
+                clone.layers[li].weight.mul_(torch.as_tensor(gates_shared[li], dtype=clone.layers[li].weight.dtype, device=DEVICE))
+            respg, outg, out0g, _, _ = gated_response_sq(model, x, x0, gates_shared)
+            stg = mlp_factor_state_gated(model, baseline["source_sq"], respg, baseline["target_tensor"], gates_shared)
+            bc = baseline_condition(clone, "mlp", x, x0, target_idx)
+            add(family, "nontrivial_shared_gate_forward", tensor_close_max(outg, bc["out"]))
+            add(family, "nontrivial_shared_gate_forward_x0", tensor_close_max(out0g, bc["out0"]))
+            add(family, "nontrivial_shared_gate_eta1", abs(float(stg["eta1"][0]) - float(bc["state"]["eta1"][0])))
+            add(family, "nontrivial_shared_gate_eta2", abs(float(stg["eta2"][0]) - float(bc["state"]["eta2"][0])))
+            add(family, "nontrivial_shared_gate_flow", max_flow_diff(stg["edge_flow"], bc["state"]["edge_flow"]))
+        else:
+            gates_shared = ones_cnn_occurrence_gates(model)
+            for li, c in enumerate(model.convs):
+                pg = np.ones(tuple(c.weight.shape), dtype=np.float64)
+                flat = pg.ravel()
+                flat[::max(2, 7 + li)] = 0.83
+                pg = flat.reshape(pg.shape)
+                gates_shared[li] = np.broadcast_to(pg[..., None, None], gates_shared[li].shape).copy()
+                clone.convs[li].weight.mul_(torch.as_tensor(pg, dtype=clone.convs[li].weight.dtype, device=DEVICE))
+            respg, outg, out0g, _, _ = gated_response_sq(model, x, x0, gates_shared)
+            stg = cnn_factor_state_gated(model, baseline["source_sq"], respg, baseline["target_tensor"], gates_shared)
+            bc = baseline_condition(clone, "cnn", x, x0, target_idx)
+            add(family, "nontrivial_shared_gate_forward", tensor_close_max(outg, bc["out"]))
+            add(family, "nontrivial_shared_gate_forward_x0", tensor_close_max(out0g, bc["out0"]))
+            add(family, "nontrivial_shared_gate_eta1", abs(float(stg["eta1"][0]) - float(bc["state"]["eta1"][0])))
+            add(family, "nontrivial_shared_gate_eta2", abs(float(stg["eta2"][0]) - float(bc["state"]["eta2"][0])))
+            add(family, "nontrivial_shared_gate_flow", max_flow_diff(stg["occurrence_flow"], bc["state"]["occurrence_flow"]))
+
+        # 5) Original model parameters must remain bitwise/numerically untouched by all gate tests.
+        mutation = max(tensor_close_max(a, b.detach().cpu()) for a, b in zip(weight_before, model.parameters()))
+        add(family, "original_parameter_immutability", mutation, tol=0.0)
+        del clone, model
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    df = pd.DataFrame(rows)
+    df["passed"] = pd.to_numeric(df.max_abs_error, errors="coerce") <= pd.to_numeric(df.tolerance, errors="coerce") + 1e-15
+    atomic_csv(df, OUTDIR / "tables" / "operator_selftest.csv")
+    bad = df[~df.passed.astype(bool)]
+    print(df.to_string(index=False))
+    if len(bad):
+        raise RuntimeError(
+            f"Operator self-test failed {len(bad)} check(s). Inspect {OUTDIR / 'tables' / 'operator_selftest.csv'}."
+        )
+    print(f"[operator self-test] all {len(df)} fail-fast checks passed before dataset/training work.")
+    return df
+
+
+# ==================================================================================================
+# 14. CHECKPOINT IMMUTABILITY / BASELINE-FIDELITY PREFLIGHT
+# ==================================================================================================
+
+def file_sha1(path: Path, chunk: int = 8 * 1024 * 1024) -> str:
+    h = hashlib.sha1()
+    with open(path, "rb") as f:
+        while True:
+            b = f.read(chunk)
+            if not b:
+                break
+            h.update(b)
+    return h.hexdigest()
+
+
+def max_flow_diff(a: List[np.ndarray], b: List[np.ndarray]) -> float:
+    vals = []
+    for x, y in zip(a, b):
+        if np.asarray(x).shape != np.asarray(y).shape:
+            return float("inf")
+        vals.append(float(np.max(np.abs(np.asarray(x, float) - np.asarray(y, float)))))
+    return max(vals) if vals else 0.0
+
+
+@torch.no_grad()
+def preflight_one_model(row: pd.Series, data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    rid = str(row.run_id)
+    cp = checkpoint_path(rid)
+    cp_hash_before = file_sha1(cp)
+    model = build_model(str(row.arch_id), str(row.activation), output_dim_for(str(row.dataset)), str(row.dataset), int(row.seed_index))
+    chk = torch.load(cp, map_location="cpu")
+    model.load_state_dict(chk["state_dict"])
+    model.to(DEVICE).eval()
+    family = str(row.family)
+
+    Xc, yc, _ = prepared_endpoint_environment(data, str(row.dataset), "clean")
+    base = None
+    x = y = x0 = None
+    target = 0
+    for jj in range(len(Xc)):
+        xj = Xc[jj:jj + 1]
+        yj = yc[jj:jj + 1]
+        x0j = torch.zeros_like(xj)
+        tj = int(yj.reshape(-1)[0].item()) if str(row.task) == "classification" else 0
+        bj = baseline_condition(model, family, xj, x0j, tj)
+        if bool(bj["state"]["valid"][0]):
+            x, y, x0, target, base = xj, yj, x0j, tj, bj
+            break
+    if base is None:
+        raise RuntimeError(f"Preflight could not find a valid baseline realization among the frozen causal conditions for sentinel {rid}.")
+
+    # All-one gate must reproduce the exact baseline forward map and factor state.
+    gates = ones_mlp_gates(model) if family == "mlp" else ones_cnn_occurrence_gates(model)
+    resp_g, out_g, out0_g, _, _ = gated_response_sq(model, x, x0, gates)
+    if family == "mlp":
+        st_g = mlp_factor_state_gated(model, base["source_sq"], resp_g, base["target_tensor"], gates)
+        flow_key = "edge_flow"
+    else:
+        st_g = cnn_factor_state_gated(model, base["source_sq"], resp_g, base["target_tensor"], gates)
+        flow_key = "occurrence_flow"
+
+    checks = []
+    checks.append({"run_id": rid, "family": family, "check": "forward_identity_x", "max_abs_error": tensor_close_max(base["out"], out_g)})
+    checks.append({"run_id": rid, "family": family, "check": "forward_identity_x0", "max_abs_error": tensor_close_max(base["out0"], out0_g)})
+    checks.append({"run_id": rid, "family": family, "check": "eta1_identity", "max_abs_error": abs(float(base["state"]["eta1"][0]) - float(st_g["eta1"][0]))})
+    checks.append({"run_id": rid, "family": family, "check": "eta2_identity", "max_abs_error": abs(float(base["state"]["eta2"][0]) - float(st_g["eta2"][0]))})
+    checks.append({"run_id": rid, "family": family, "check": "Sdef_identity", "max_abs_error": abs(float(base["state"]["entropy_deficit"][0]) - float(st_g["entropy_deficit"][0]))})
+    checks.append({"run_id": rid, "family": family, "check": "flow_identity", "max_abs_error": max_flow_diff(base["state"][flow_key], st_g[flow_key])})
+
+    # alpha=0 must yield exactly zero intervention effect and zero Hellinger distance.
+    flow_list = flow_list_from_state(base["state"], family)
+    real_masks, _ = select_realized_masks(flow_list, TARGET_FRACTION)
+    zero_int = intervene_condition(model, family, x, x0, target, real_masks, base, alpha=0.0)
+    mrec = manifestation_record(str(row.dataset), y, target, base["out"], base["out0"], zero_int["out"], zero_int["out0"])
+    checks.append({"run_id": rid, "family": family, "check": "alpha0_manifestation", "max_abs_error": float(mrec["manifestation_abs"])})
+    checks.append({"run_id": rid, "family": family, "check": "alpha0_hellinger", "max_abs_error": float(zero_int["hellinger"])})
+
+    # CNN-specific occurrence identity: one gated occurrence must not rewrite or globally gate the shared kernel.
+    if family == "cnn":
+        weight_before = [c.weight.detach().cpu().clone() for c in model.convs]
+        masks = [np.zeros_like(g, dtype=bool) for g in gates]
+        # Pick the first positive occurrence-flow element in the first layer.
+        f0 = np.asarray(flow_list[0], float).ravel()
+        pos = np.flatnonzero(f0 > 0)
+        if len(pos):
+            masks[0].ravel()[int(pos[0])] = True
+            _ = cnn_forward_with_gates(model, x, masks_to_gates(masks, ATTENUATION))
+            weight_error = max(tensor_close_max(a, c.weight.detach().cpu()) for a, c in zip(weight_before, model.convs))
+            checks.append({"run_id": rid, "family": family, "check": "cnn_parameter_tensor_immutable", "max_abs_error": weight_error})
+
+    cp_hash_after = file_sha1(cp)
+    checks.append({"run_id": rid, "family": family, "check": "checkpoint_hash_immutable", "max_abs_error": 0.0 if cp_hash_before == cp_hash_after else 1.0})
+
+    del model
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    return checks
+
+
+def run_preflight(manifest: pd.DataFrame, data_cache: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
+    """Internal fidelity checks on newly trained sentinel checkpoints.
+
+    There is intentionally no comparison to any previous experiment. Fidelity is checked by
+    equivalence between the established ungated implementation and the new intervention-aware
+    implementation when gates equal one / alpha equals zero, plus checkpoint immutability.
+    """
+    if not RUN_PREFLIGHT:
+        return pd.DataFrame()
+    rows = []
+    preferred = manifest[
+        manifest.arch_id.astype(str).isin(["M2_sustained", "C2_bottleneck"])
+        & (manifest.optimizer.astype(str) == "adam")
+        & (manifest.activation.astype(str) == "relu")
+        & (pd.to_numeric(manifest.seed_index, errors="coerce") == 0)
+    ].copy()
+    if preferred.empty:
+        preferred = pd.concat([
+            manifest[manifest.family.astype(str) == "mlp"].head(1),
+            manifest[manifest.family.astype(str) == "cnn"].head(1),
+        ], ignore_index=True).drop_duplicates("run_id")
+    preferred = preferred[preferred.run_id.astype(str).map(lambda r: checkpoint_path(r).exists())]
+    if preferred.empty:
+        raise RuntimeError("No trained sentinel checkpoint exists for intervention fidelity preflight.")
+    for _, row in tqdm(preferred.iterrows(), total=len(preferred), desc="Intervention fidelity preflight"):
+        rows.extend(preflight_one_model(row, data_cache[str(row.dataset)]))
+    df = pd.DataFrame(rows)
+    atomic_csv(df, OUTDIR / "tables" / "intervention_preflight.csv")
+    bad = df[pd.to_numeric(df.max_abs_error, errors="coerce") > PREFLIGHT_TOL]
+    print(df.to_string(index=False))
+    if len(bad):
+        raise RuntimeError(
+            f"Intervention preflight failed {len(bad)} identity check(s) at tolerance {PREFLIGHT_TOL}. "
+            f"Inspect {OUTDIR / 'tables' / 'intervention_preflight.csv'}."
+        )
+    print(f"[preflight] all {len(df)} internal fidelity checks passed at tolerance {PREFLIGHT_TOL:g}.")
+    return df
+
+
+
+# ==================================================================================================
+# 15. EXPERIMENT 4 CONFIGURATION / FROZEN CHECKPOINT SOURCE AUDIT
+# ==================================================================================================
+
+from dataclasses import dataclass
+import gc
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import dijkstra as csgraph_dijkstra
+
+EXP4_CONDITION_COUNT = int(os.environ.get("PATHFLOW_EXP4_MEASURE_CONDITIONS", "10"))
+EXP4_ALPHA = float(os.environ.get("PATHFLOW_EXP4_BCANW_ALPHA", "0.25"))
+INTERVENTION_TYPES = ("realized", "structural", "matched")
+SAVE_EVERY_GEOMETRY_CONDITIONS = int(os.environ.get("PATHFLOW_EXP4_SAVE_EVERY_GEOM", "1"))
+GEOM_CONDITION_BUFFER_MIN = float(os.environ.get("PATHFLOW_EXP4_GEOM_CONDITION_BUFFER_MIN", "20.0"))
+AGGREGATE_SCALE_TABLES = os.environ.get("PATHFLOW_EXP4_AGGREGATE_SCALES", "1") != "0"
+COMPUTE_LOCAL_GEOMETRY = os.environ.get("PATHFLOW_EXP4_COMPUTE_LOCAL", "1") == "1"
+
+# Exact audited benchmark/input-resolved BCANw conventions.
+BCANW_SCALES = int(os.environ.get("PATHFLOW_EXP4_BCANW_SCALES", "64"))
+PREFLIGHT_BCANW_SCALES = int(os.environ.get("PATHFLOW_EXP4_PREFLIGHT_BCANW_SCALES", "24"))
+BCANW_MAX_NODES = int(os.environ.get("PATHFLOW_EXP4_BCANW_MAX_NODES", "5200"))
+LOCAL_DIMENSION_NODES = int(os.environ.get("PATHFLOW_EXP4_LOCAL_DIMENSION_NODES", "128"))
+LOCAL_RADII_MAX = int(os.environ.get("PATHFLOW_EXP4_LOCAL_RADII_MAX", "40"))
+METRIC_POWER = 1.0
+LOCAL_SLOPE_WINDOW = 7
+LOCAL_SLOPE_R2_MIN = 0.90
+RENORM_TARGET_BOX_FRACTIONS = np.array([0.50, 0.25, 0.125, 0.0625])
+COARSE_RENYI_Q = [0.5, 1.0, 2.0, 3.0]
+
+SCALING_R2_MIN = 0.97
+SCALING_MIN_DIM = 0.25
+SCALING_MIN_POINTS = 6
+SCALING_MIN_SPAN_DECADES = 0.50
+SCALING_MIN_NB_RATIO = 5.0
+SCALING_MAX_SLOPE_CV = 0.25
+SCALING_MAX_DELTA_BIC = 2.0
+
+LOCAL_COMMON_MIN_POINTS = 7
+LOCAL_COMMON_MIN_SPAN_DECADES = 0.50
+LOCAL_COMMON_SUPPORT_GROWTH = 4.0
+LOCAL_COMMON_MASS_GROWTH = 3.0
+LOCAL_COMMON_R2_MIN = 0.95
+LOCAL_COMMON_SATURATION = 0.95
+
+if PROFILE == "pilot":
+    EXP4_CONDITION_COUNT = min(2, CONDITIONS_PER_MODEL)
+    BCANW_SCALES = min(16, BCANW_SCALES)
+    PREFLIGHT_BCANW_SCALES = min(12, PREFLIGHT_BCANW_SCALES)
+
+if EXP4_CONDITION_COUNT <= 0:
+    raise ValueError("EXP4_CONDITION_COUNT must be positive.")
+if EXP4_CONDITION_COUNT > CONDITIONS_PER_MODEL:
+    raise ValueError(
+        f"EXP4_CONDITION_COUNT={EXP4_CONDITION_COUNT} exceeds the reconstructed Experiment 1 "
+        f"causal population size {CONDITIONS_PER_MODEL}."
+    )
+if not (0.0 < EXP4_ALPHA < 1.0):
+    raise ValueError("EXP4_ALPHA must lie in (0,1).")
+if BCANW_SCALES < 4:
+    raise ValueError("BCANW_SCALES must be >=4.")
+
+GEOMETRY_STATES = ("baseline",) + INTERVENTION_TYPES
+
+
+def exp4_part_path(run_id: str, kind: str) -> Path:
+    return OUTDIR / "run_parts" / f"{run_id}__EXP4__{kind}.csv"
+
+
+def exp4_done_path(run_id: str) -> Path:
+    return OUTDIR / "run_parts" / f"{run_id}__EXP4__DONE.json"
+
+
+def verify_exp1_checkpoint_source(manifest: pd.DataFrame) -> pd.DataFrame:
+    rows, missing = [], []
+    for _, r in manifest.iterrows():
+        rid = str(r.run_id)
+        cp = checkpoint_path(rid)
+        exists = cp.exists()
+        rows.append({
+            "run_id": rid,
+            "dataset": str(r.dataset),
+            "family": str(r.family),
+            "arch_id": str(r.arch_id),
+            "optimizer": str(r.optimizer),
+            "activation": str(r.activation),
+            "seed_index": int(r.seed_index),
+            "checkpoint_exists": bool(exists),
+            "checkpoint_path": str(cp),
+            "checkpoint_bytes": int(cp.stat().st_size) if exists else 0,
+        })
+        if not exists:
+            missing.append(str(cp))
+    df = pd.DataFrame(rows)
+    atomic_csv(df, OUTDIR / "tables" / "source_checkpoint_inventory.csv")
+    if missing:
+        preview = "\n".join(missing[:20])
+        raise RuntimeError(
+            f"Experiment 4 requires the frozen Experiment 1 checkpoints. Missing {len(missing)} checkpoint(s).\n{preview}"
+        )
+    return df
+
+
+# ==================================================================================================
+# 16. EXACT 10-CONDITION COHORT RECONSTRUCTION (SAME UNDERLYING ITEMS AS EXPERIMENTS 2/3)
+# ==================================================================================================
+
+
+def select_exp4_endpoint_local_indices(data: Dict[str, Any], dataset: str, count: int) -> np.ndarray:
+    endpoint_ids = np.asarray(data["endpoint_indices"], dtype=int)
+    causal_local = np.asarray(data["causal_endpoint_local_indices"], dtype=int)
+    strata_test = np.asarray(data["test_strata"])
+    causal_strata = strata_test[endpoint_ids[causal_local]]
+
+    if dataset == "fmnist" and count == 10:
+        selected = []
+        for cls in range(10):
+            ids = np.flatnonzero(causal_strata == cls)
+            if len(ids) == 0:
+                raise RuntimeError(f"Frozen Experiment 1 causal population has no FMNIST class {cls}.")
+            selected.append(int(causal_local[int(ids[0])]))
+        return np.asarray(selected, dtype=int)
+
+    if dataset == "mpi3d" and count == 10:
+        selected = []
+        for level in range(0, 40, 4):
+            ids = np.flatnonzero(causal_strata == level)
+            if len(ids) == 0:
+                raise RuntimeError(f"Frozen Experiment 1 causal population has no MPI3D level {level}.")
+            selected.append(int(causal_local[int(ids[0])]))
+        return np.asarray(selected, dtype=int)
+
+    chosen_positions = balanced_indices_from_strata(
+        causal_strata,
+        min(int(count), len(causal_local)),
+        CONDITION_SEED_BASE + 12001 + (0 if dataset == "fmnist" else 1),
+    )
+    return causal_local[chosen_positions]
+
+
+def attach_exp4_population(data_cache: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
+    rows = []
+    for ds, data in data_cache.items():
+        local = select_exp4_endpoint_local_indices(data, ds, EXP4_CONDITION_COUNT)
+        data["exp4_endpoint_local_indices"] = local
+        endpoint_ids = np.asarray(data["endpoint_indices"], dtype=int)
+        strata = np.asarray(data["test_strata"])
+        causal_local = np.asarray(data["causal_endpoint_local_indices"], dtype=int)
+        pos_map = {int(v): i for i, v in enumerate(causal_local)}
+        for ci, ep_local in enumerate(local):
+            test_id = int(endpoint_ids[int(ep_local)])
+            rows.append({
+                "dataset": ds,
+                "exp4_condition_index": int(ci),
+                "exp1_condition_index": int(pos_map[int(ep_local)]),
+                "endpoint_local_index": int(ep_local),
+                "test_index": test_id,
+                "stratum": strata[test_id],
+            })
+    df = pd.DataFrame(rows)
+    atomic_csv(df, OUTDIR / "tables" / "multiscale_condition_population.csv")
+    return df
+
+
+def audit_prior_cohorts_if_present(population: pd.DataFrame) -> Dict[str, Any]:
+    audits = []
+    candidates = [
+        ("experiment2", EXP1_RESULTS / "experiment2_condition_crossover" / "tables" / "crossover_pair_population.csv"),
+        ("experiment3", EXP1_RESULTS / "experiment3_dose_response" / "tables" / "dose_condition_population.csv"),
+    ]
+    current = population[["dataset", "test_index", "stratum"]].copy().sort_values(["dataset", "test_index"]).reset_index(drop=True)
+    for name, path in candidates:
+        rec = {"source": name, "path": str(path), "present": bool(path.exists())}
+        if path.exists():
+            old = pd.read_csv(path)
+            req = {"dataset", "test_index", "stratum"}
+            rec["schema_match"] = bool(req.issubset(old.columns))
+            if rec["schema_match"]:
+                other = old[["dataset", "test_index", "stratum"]].copy().sort_values(["dataset", "test_index"]).reset_index(drop=True)
+                same = len(current) == len(other) and current.astype(str).equals(other.astype(str))
+                rec["row_count_current"] = int(len(current))
+                rec["row_count_prior"] = int(len(other))
+                rec["cohort_match"] = bool(same)
+                if not same:
+                    atomic_json({"audits": audits + [rec]}, OUTDIR / "audit" / "prior_cohort_audit.json")
+                    raise RuntimeError(f"{name} condition-population table exists but does not match Experiment 4's reconstructed cohort.")
+        audits.append(rec)
+    out = {"audits": audits}
+    atomic_json(out, OUTDIR / "audit" / "prior_cohort_audit.json")
+    return out
+
+
+def prepared_exp4_environment(data: Dict[str, Any], dataset: str, environment: str) -> Tuple[torch.Tensor, torch.Tensor]:
+    Xt, yt = data["test"]
+    endpoint_ids = np.asarray(data["endpoint_indices"], dtype=int)
+    local = np.asarray(data["exp4_endpoint_local_indices"], dtype=int)
+    Xep = Xt[endpoint_ids]
+    yep = yt[endpoint_ids]
+    if environment == "shifted":
+        Xep = shifted_environment(Xep, dataset, data["meta"])
+    return Xep[local], yep[local]
+
+
+# ==================================================================================================
+# 17. INTERVENTION SET CONSTRUCTION — EXACT EXPERIMENT 1/3 LOGIC
+# ==================================================================================================
+
+
+def construct_exp4_masks(model: nn.Module, family: str, baseline: Dict[str, Any], target_idx: int, match_seed: int):
+    real_flow = flow_list_from_state(baseline["state"], family)
+    real_masks, real_audit = select_realized_masks(real_flow, TARGET_FRACTION)
+    counts = target_counts(real_masks)
+    if int(sum(counts)) <= 0:
+        raise RuntimeError("Defined realization produced no positive realized-flow intervention elements.")
+
+    struct_state = output_matched_structural_state(model, family, target_idx)
+    if not bool(struct_state["valid"][0]):
+        raise RuntimeError("Output-matched structural state unexpectedly undefined.")
+    struct_masks = select_top_k_masks(flow_list_from_state(struct_state, family), counts)
+
+    if family == "mlp":
+        scores = ordinary_activation_scores_mlp(model, baseline["hs"], baseline["hs0"])
+    else:
+        scores = ordinary_activation_scores_cnn(model, baseline["hs"], baseline["hs0"])
+    support = positive_support_masks(real_flow)
+    matched_masks, matched_audit = select_matched_masks(real_masks, scores, support, match_seed)
+
+    if not (target_counts(real_masks) == target_counts(struct_masks) == target_counts(matched_masks)):
+        raise RuntimeError("Experiment 4 intervention-set budget mismatch.")
+
+    return {
+        "realized": real_masks,
+        "structural": struct_masks,
+        "matched": matched_masks,
+        "real_audit": real_audit,
+        "matched_audit": matched_audit,
+        "real_flow": real_flow,
+    }
+
+
+# ==================================================================================================
+# 18. AUDITED BCANw IMPLEMENTATION
+# Copied in logic from pathflow_work2_benchmark_FMNIST_MPI3D_case_study.py.
+# The geometry carrier is the MLP edge flow or CNN spatial occurrence flow; no new carrier is invented.
+# ==================================================================================================
+
+
+def r2_score_np(y, pred):
+    y = np.asarray(y, float); pred = np.asarray(pred, float)
+    den = float(np.sum((y-y.mean())**2))
+    return float(1.0 - np.sum((y-pred)**2)/den) if den > EPS else np.nan
+
+@dataclass
+class FlowGraph:
+    n_nodes:int
+    edge_u:np.ndarray
+    edge_v:np.ndarray
+    edge_mag:np.ndarray
+    edge_layer:np.ndarray
+    node_meta:List[Dict[str,Any]]
+
+
+def mlp_graph_from_state(model:DeepMLP,state:Dict[str,Any],enrichment:bool)->FlowGraph:
+    node_sizes=[model.layers[0].in_features]+[l.out_features for l in model.layers]
+    offsets=np.cumsum([0]+node_sizes[:-1]).astype(np.int64); meta=[]
+    for li,n in enumerate(node_sizes):
+        for j in range(n):meta.append({"layer":li,"channel":j,"y":-1,"x":-1})
+    U=[];V=[];Fv=[];Lv=[]
+    for li,E0 in enumerate(state["edge_flow"]):
+        E=np.clip(np.asarray(E0,float),0,None); E=E*(E.size if enrichment else 1.0)
+        no,ni=E.shape
+        oo,ii=np.indices((no,ni),dtype=np.int64)
+        U.append(offsets[li]+ii.ravel()); V.append(offsets[li+1]+oo.ravel()); Fv.append(E.ravel()); Lv.append(np.full(E.size,li,dtype=np.int32))
+    return FlowGraph(sum(node_sizes),np.concatenate(U),np.concatenate(V),np.concatenate(Fv),np.concatenate(Lv),meta)
+
+
+def cnn_graph_from_state(model:DeepCNN,state:Dict[str,Any],enrichment:bool)->FlowGraph:
+    shapes_hw=model.spatial_shapes(); layer_shapes=[(model.channels[i],*shapes_hw[i]) for i in range(len(shapes_hw))]
+    offsets=[0]
+    for c,h,w in layer_shapes[:-1]:offsets.append(offsets[-1]+c*h*w)
+    meta=[]
+    for li,(c,h,w) in enumerate(layer_shapes):
+        for cc in range(c):
+            for yy in range(h):
+                for xx in range(w):meta.append({"layer":li,"channel":cc,"y":yy,"x":xx})
+    U=[];V=[];Fv=[];Lv=[]
+    for li,E0 in enumerate(state["occurrence_flow"]):
+        E=np.clip(np.asarray(E0,float),0,None); E=E*(E.size if enrichment else 1.0)
+        cout,cin,k,_,Hout,Wout=E.shape; _,Hin,Win=layer_shapes[li]
+        co,ci,dy,dx,yy,xx=np.indices(E.shape,dtype=np.int64)
+        u=(offsets[li] + ci*Hin*Win + (yy+dy)*Win + (xx+dx)).ravel()
+        v=(offsets[li+1] + co*Hout*Wout + yy*Wout + xx).ravel()
+        U.append(u);V.append(v);Fv.append(E.ravel());Lv.append(np.full(E.size,li,dtype=np.int32))
+    return FlowGraph(sum(c*h*w for c,h,w in layer_shapes),np.concatenate(U),np.concatenate(V),np.concatenate(Fv),np.concatenate(Lv),meta)
+
+
+def global_node_measure(state:Dict[str,Any],family:str)->np.ndarray:
+    node=state["node_flow"]; x=np.concatenate([np.asarray(v,float).ravel() for v in node]); x=np.clip(x,0,None); x/=max(float(x.sum()),EPS); return x
+
+
+def metric_lengths(G:FlowGraph,power:float=METRIC_POWER)->np.ndarray:
+    return np.power(np.clip(G.edge_mag,0,None)+EPS,-float(power))
+
+
+def distance_matrix(G:FlowGraph,lengths:np.ndarray)->np.ndarray:
+    rows=np.concatenate([G.edge_u,G.edge_v]); cols=np.concatenate([G.edge_v,G.edge_u]); vals=np.concatenate([lengths,lengths])
+    A=csr_matrix((vals,(rows,cols)),shape=(G.n_nodes,G.n_nodes),dtype=float)
+    return np.asarray(csgraph_dijkstra(A,directed=False,unweighted=False),float)
+
+
+def bcanw_scales(D:np.ndarray,n_scales:int)->np.ndarray:
+    vals=D[np.triu_indices(D.shape[0],k=1)];vals=vals[np.isfinite(vals)&(vals>0)]
+    if len(vals)==0:return np.array([],float)
+    lo=max(float(vals.min())*.95,EPS);hi=float(vals.max())*1.005
+    return np.geomspace(lo,hi,max(n_scales,4)) if hi>lo else np.array([lo])
+
+
+def node_strength(G:FlowGraph)->np.ndarray:
+    s=np.zeros(G.n_nodes,float); np.add.at(s,G.edge_u,G.edge_mag); np.add.at(s,G.edge_v,G.edge_mag); return s
+
+def greedy_bcanw_coloring(D:np.ndarray,ell:float,order:np.ndarray)->np.ndarray:
+    color=np.full(D.shape[0],-1,int)
+    for u in order:
+        used=set(color[(D[u]>=ell)&(color>=0)].tolist()); c=0
+        while c in used:c+=1
+        color[u]=c
+    return color
+
+
+def renyi_effective_fraction(p:np.ndarray,q:float)->float:
+    p=np.asarray(p,float);p=p[np.isfinite(p)&(p>0)]
+    if len(p)==0:return np.nan
+    p=p/p.sum(); E=len(p); H=-np.sum(p*np.log(p)) if abs(q-1)<1e-12 else math.log(np.sum(p**q))/(1-q)
+    return float(math.exp(H)/E)
+
+
+def box_flow_observables(colors:np.ndarray,node_mu:np.ndarray,Graw:FlowGraph)->Dict[str,Any]:
+    """Box mass, directed quotient flow, retention and coarse Renyi statistics.
+
+    Uses vectorized edge arrays and sparse quotient-pair aggregation. No dense NB x NB matrix is built.
+    Because node ids are layer ordered, edge_u -> edge_v retains the computational feed-forward direction.
+    """
+    nb=int(colors.max())+1
+    mass=np.bincount(colors,weights=node_mu,minlength=nb).astype(float); mean=max(float(mass.mean()),EPS); lac=float(np.mean(mass*mass)/(mean*mean))
+    a=colors[Graw.edge_u]; b=colors[Graw.edge_v]; f=Graw.edge_mag
+    total=float(np.sum(f)); off=(a!=b); inter=float(np.sum(f[off]))
+    if np.any(off):
+        pair=a[off].astype(np.int64)*np.int64(nb)+b[off].astype(np.int64)
+        uniq,inv=np.unique(pair,return_inverse=True)
+        vals=np.bincount(inv,weights=f[off]).astype(float)
+        vals=vals[np.isfinite(vals)&(vals>0)]
+    else:
+        vals=np.array([],float)
+    if len(vals):
+        qnorm=vals/max(float(vals.mean()),EPS); probs=vals/max(float(vals.sum()),EPS); eta={q:renyi_effective_fraction(probs,q) for q in COARSE_RENYI_Q}
+    else:qnorm=np.array([]);eta={q:np.nan for q in COARSE_RENYI_Q}
+    return {"lacunarity":lac,"quotient_flow_norm":qnorm,"coarse_eta_q":eta,"interbox_flow_fraction":float(inter/max(total,EPS))}
+
+def compress_box_staircase_midpoint(radii,NB,lac=None):
+    r=np.asarray(radii,float); n=np.asarray(NB,float); good=np.isfinite(r)&np.isfinite(n)&(r>0); r,n=r[good],n[good]; l=np.asarray(lac,float)[good] if lac is not None else None
+    if len(r)==0:return (r,n,np.array([]),pd.DataFrame()) if lac is not None else (r,n,pd.DataFrame())
+    rows=[]; rc=[]; nc=[]; lc=[]; start=0
+    for k in range(1,len(r)+1):
+        end=(k==len(r)) or (n[k] != n[start] if k<len(r) else True)
+        if end:
+            j=k-1; mid=math.sqrt(r[start]*r[j]); rc.append(mid); nc.append(n[start]);
+            if l is not None:lc.append(float(np.nanmedian(l[start:j+1])))
+            rows.append({"plateau_index":len(rows),"NB":float(n[start]),"ell_min":float(r[start]),"ell_max":float(r[j]),"ell_mid":float(mid),"n_raw_scales":int(j-start+1),"span_decades":float(np.log10(r[j]/r[start])) if r[j]>r[start] else 0.0})
+            start=k
+    if l is not None:return np.asarray(rc),np.asarray(nc),np.asarray(lc),pd.DataFrame(rows)
+    return np.asarray(rc),np.asarray(nc),pd.DataFrame(rows)
+
+
+def covering_quantile_scale_loglog(radii,NB,N,q,return_diagnostics:bool=False):
+    r=np.asarray(radii,float); y=np.asarray(NB,float)/float(N); good=np.isfinite(r)&np.isfinite(y)&(r>0)&(y>0);r,y=r[good],y[good]
+    diag={"monotonicity_corrections":0,"max_upward_cover_fraction_step":0.0}
+    if len(r)<2:return (np.nan,diag) if return_diagnostics else np.nan
+    order=np.argsort(r);r,y=r[order],y[order]
+    dy=np.diff(y); upward=dy>1e-12
+    diag["monotonicity_corrections"]=int(np.sum(upward));diag["max_upward_cover_fraction_step"]=float(np.max(dy[upward])) if np.any(upward) else 0.0
+    y=np.minimum.accumulate(y)
+    if not (y[-1] <= q <= y[0]):return (np.nan,diag) if return_diagnostics else np.nan
+    idx=np.where(y<=q)[0]
+    if len(idx)==0:return (np.nan,diag) if return_diagnostics else np.nan
+    j=int(idx[0])
+    if j==0:
+        xi=float(r[0]) if np.isclose(y[0],q) else np.nan
+        return (xi,diag) if return_diagnostics else xi
+    ly0,ly1=math.log(y[j-1]),math.log(y[j]);lr0,lr1=math.log(r[j-1]),math.log(r[j]);lq=math.log(q)
+    xi=float(math.sqrt(r[j-1]*r[j])) if abs(ly1-ly0)<EPS else float(math.exp(lr0+(lq-ly0)/(ly1-ly0)*(lr1-lr0)))
+    return (xi,diag) if return_diagnostics else xi
+
+def local_effective_dimension_transition(radii_c,NB_c,xi50,window=LOCAL_SLOPE_WINDOW):
+    r=np.asarray(radii_c,float);n=np.asarray(NB_c,float);good=np.isfinite(r)&np.isfinite(n)&(r>0)&(n>1);r,n=r[good],n[good]
+    if len(r)==0 or not np.isfinite(xi50) or xi50<=0:return np.array([]),np.array([]),np.array([])
+    x=r/xi50;lx=np.log(r);ly=np.log(n);d=np.full(len(r),np.nan);rr=np.full(len(r),np.nan);half=max(window//2,1)
+    for i in range(len(r)):
+        lo=max(0,i-half);hi=min(len(r),i+half+1)
+        if hi-lo<3:continue
+        b,a=np.polyfit(lx[lo:hi],ly[lo:hi],1);pred=a+b*lx[lo:hi];d[i]=-float(b);rr[i]=r2_score_np(ly[lo:hi],pred)
+    return x,d,rr
+
+
+def strict_scaling_window(radii_c,NB_c,N):
+    empty={"dB":np.nan,"r2":np.nan,"span_decades":0.,"n_points":0,"credible":False}
+    r=np.asarray(radii_c,float);nb=np.asarray(NB_c,float);good=np.isfinite(r)&np.isfinite(nb)&(r>0)&(nb>1)&(nb<.95*N);ids=np.where(good)[0]
+    if len(ids)<SCALING_MIN_POINTS:return empty
+    cand=[]
+    for a in range(len(ids)-SCALING_MIN_POINTS+1):
+        for b in range(a+SCALING_MIN_POINTS,len(ids)+1):
+            sel=ids[a:b]
+            if np.any(np.diff(sel)!=1):continue
+            rs,ns=r[sel],nb[sel];span=float(np.log10(rs[-1]/rs[0]));nbr=float(ns[0]/max(ns[-1],EPS))
+            if span<SCALING_MIN_SPAN_DECADES or nbr<SCALING_MIN_NB_RATIO:continue
+            x,y=np.log(rs),np.log(ns);slope,inter=np.polyfit(x,y,1);dim=-float(slope);pred=inter+slope*x;rr=r2_score_np(y,pred)
+            if not np.isfinite(rr) or rr<SCALING_R2_MIN or dim<SCALING_MIN_DIM:continue
+            cand.append((span,rr,dim,len(sel)))
+    if not cand:return empty
+    cand.sort(reverse=True);span,rr,dim,npnt=cand[0];return {"dB":dim,"r2":rr,"span_decades":span,"n_points":npnt,"credible":True}
+
+
+def fit_common_local_growth(rgrid,support,mass):
+    r=np.asarray(rgrid,float);s=np.asarray(support,float);m=np.asarray(mass,float);good=np.isfinite(r)&np.isfinite(s)&np.isfinite(m)&(r>0)&(s>0)&(m>0);r,s,m=r[good],s[good],m[good]
+    keep=[0] if len(r) else []
+    for k in range(1,len(r)):
+        if not(np.isclose(s[k],s[keep[-1]],rtol=1e-10,atol=1e-14) and np.isclose(m[k],m[keep[-1]],rtol=1e-10,atol=1e-14)):keep.append(k)
+    if not keep:return (np.nan,)*7
+    r,s,m=r[keep],s[keep],m[keep];valid=(s<LOCAL_COMMON_SATURATION)&(m<LOCAL_COMMON_SATURATION);r,s,m=r[valid],s[valid],m[valid]
+    if len(r)<LOCAL_COMMON_MIN_POINTS:return (np.nan,)*7
+    best=None
+    for i in range(len(r)-LOCAL_COMMON_MIN_POINTS+1):
+        for j in range(i+LOCAL_COMMON_MIN_POINTS,len(r)+1):
+            rr,ss,mm=r[i:j],s[i:j],m[i:j];span=float(np.log10(rr[-1]/rr[0]))
+            if span<LOCAL_COMMON_MIN_SPAN_DECADES or ss[-1]/max(ss[0],EPS)<LOCAL_COMMON_SUPPORT_GROWTH or mm[-1]/max(mm[0],EPS)<LOCAL_COMMON_MASS_GROWTH:continue
+            x=np.log(rr);bd,ad=np.polyfit(x,np.log(ss),1);ba,aa=np.polyfit(x,np.log(mm),1)
+            if bd<=0 or ba<=0:continue
+            r2d=r2_score_np(np.log(ss),ad+bd*x);r2a=r2_score_np(np.log(mm),aa+ba*x)
+            if r2d<LOCAL_COMMON_R2_MIN or r2a<LOCAL_COMMON_R2_MIN:continue
+            score=(span,min(r2d,r2a),len(rr));rec=(float(bd),float(ba),float(ba-bd),float(r2d),float(r2a),span,int(len(rr)))
+            if best is None or score>best[0]:best=(score,rec)
+    return best[1] if best else (np.nan,)*7
+
+
+def local_metric_dimensions(D,node_mu,node_meta,max_nodes=LOCAL_DIMENSION_NODES,max_radii=LOCAL_RADII_MAX)->Tuple[Dict[str,Any],pd.DataFrame]:
+    N=D.shape[0];ids=np.arange(N)
+    if max_nodes is not None and max_nodes<N:
+        rng=np.random.default_rng(SEED+N);ids=np.sort(rng.choice(N,size=max_nodes,replace=False))
+    rows=[];deltas=[]
+    for i in ids:
+        di=np.asarray(D[i],float);vals=np.unique(di[np.isfinite(di)&(di>0)])
+        if len(vals)<LOCAL_COMMON_MIN_POINTS:continue
+        if len(vals)>max_radii:
+            jj=np.unique(np.round(np.linspace(0,len(vals)-1,max_radii)).astype(int));vals=vals[jj]
+        support=np.array([np.mean(di<=r) for r in vals],float);mass=np.array([np.sum(node_mu[di<=r]) for r in vals],float)
+        bd,ba,dd,r2d,r2a,span,npnt=fit_common_local_growth(vals,support,mass)
+        meta=node_meta[i] if i<len(node_meta) else {}
+        rows.append({"node_id":int(i),**meta,"d_i_F":bd,"alpha_i_F":ba,"delta_i_F":dd,"r2_d":r2d,"r2_alpha":r2a,"span_decades":span,"n_fit":npnt,"node_measure":float(node_mu[i])})
+        if np.isfinite(dd):deltas.append(dd)
+    df=pd.DataFrame(rows);summ={"local_delta_median":float(np.nanmedian(deltas)) if len(deltas) else np.nan,"valid_local_delta_fraction":float(np.mean(np.isfinite(df.delta_i_F))) if len(df) else np.nan,"local_nodes_evaluated":int(len(ids))}
+    return summ,df
+
+
+def nearest_resolution_indices(NB,N):
+    frac=np.asarray(NB,float)/N;out=[]
+    for t in RENORM_TARGET_BOX_FRACTIONS:
+        elig=np.where((NB>=3)&(NB<=.90*N))[0]
+        if len(elig)==0:continue
+        idx=int(elig[np.argmin(np.abs(frac[elig]-t))]);
+        if idx not in out:out.append(idx)
+    return out
+
+
+def mean_pairwise_ks(arrays):
+    arr=[]
+    for a in arrays:
+        v=np.asarray(a,float);v=v[np.isfinite(v)&(v>0)]
+        if len(v)>=5:arr.append(v)
+    if len(arr)<2:return np.nan
+    vals=[ks_2samp(arr[i],arr[j]).statistic for i in range(len(arr)) for j in range(i+1,len(arr))]
+    return float(np.mean(vals)) if vals else np.nan
+
+
+def analyze_geometry(model:nn.Module,state:Dict[str,Any],family:str,n_scales:int,compute_local:bool=True):
+    Ggeom=mlp_graph_from_state(model,state,True) if family=="mlp" else cnn_graph_from_state(model,state,True)
+    if Ggeom.n_nodes>BCANW_MAX_NODES:
+        return {"geometry_skipped":True,"geometry_skip_reason":f"n_nodes={Ggeom.n_nodes}>cap={BCANW_MAX_NODES}","n_graph_nodes":Ggeom.n_nodes},pd.DataFrame(),pd.DataFrame(),pd.DataFrame()
+    Graw=mlp_graph_from_state(model,state,False) if family=="mlp" else cnn_graph_from_state(model,state,False)
+    D=distance_matrix(Ggeom,metric_lengths(Ggeom));radii=bcanw_scales(D,n_scales);order=np.lexsort((np.arange(Ggeom.n_nodes),-node_strength(Ggeom)));node_mu=global_node_measure(state,family)
+    NB=[];lac=[];inter=[];qnorm=[];coarse={q:[] for q in COARSE_RENYI_Q}
+    for ell in radii:
+        colors=greedy_bcanw_coloring(D,float(ell),order);NB.append(int(colors.max())+1);b=box_flow_observables(colors,node_mu,Graw);lac.append(b["lacunarity"]);inter.append(b["interbox_flow_fraction"]);qnorm.append(b["quotient_flow_norm"])
+        for q in COARSE_RENYI_Q:coarse[q].append(b["coarse_eta_q"][q])
+    NB=np.asarray(NB,float);lac=np.asarray(lac,float);inter=np.asarray(inter,float)
+    rc,nc,lc,plateaus=compress_box_staircase_midpoint(radii,NB,lac);xi50,xi_diag=covering_quantile_scale_loglog(rc,nc,Ggeom.n_nodes,.5,return_diagnostics=True);xc,deff,deffr2=local_effective_dimension_transition(rc,nc,xi50);sw=strict_scaling_window(rc,nc,Ggeom.n_nodes)
+    qidx=nearest_resolution_indices(NB,Ggeom.n_nodes);qks=mean_pairwise_ks([qnorm[i] for i in qidx]);ret=float(np.nanmean(inter[qidx])) if len(qidx) else np.nan
+    local_summ={"local_delta_median":np.nan,"valid_local_delta_fraction":np.nan,"local_nodes_evaluated":0};local_df=pd.DataFrame()
+    if compute_local:local_summ,local_df=local_metric_dimensions(D,node_mu,Ggeom.node_meta)
+    valid_deff=(np.isfinite(deff)&np.isfinite(deffr2)&(deffr2>=LOCAL_SLOPE_R2_MIN)&(deff>0))
+    dstar=float(np.nanmax(deff[valid_deff])) if np.any(valid_deff) else np.nan;xdstar=float(xc[np.where(valid_deff)[0][np.nanargmax(deff[valid_deff])]]) if np.any(valid_deff) else np.nan
+    frac=NB/Ggeom.n_nodes;mask=np.isfinite(lac)&(frac>=.015)&(frac<=.85);lacstar=float(np.nanmax(lac[mask])) if np.any(mask) else np.nan
+    summ={"geometry_skipped":False,"geometry_skip_reason":"","n_graph_nodes":Ggeom.n_nodes,"xi50":xi50,"log_xi50":safe_log(xi50),"d_star":dstar,"x_d_star":xdstar,"lacunarity_star":lacstar,"scaling_dB":sw["dB"],"scaling_r2":sw["r2"],"scaling_credible":sw["credible"],"quotient_mean_pairwise_KS":qks,"renorm_flow_retention_mean":ret,"n_plateaus":len(plateaus),"transition_fraction":len(rc)/max(len(radii),1),"max_plateau_span_decades":float(plateaus.span_decades.max()) if len(plateaus) else np.nan,"xi50_bracketed":bool(np.isfinite(xi50)),"cover_monotonicity_corrections":int(xi_diag["monotonicity_corrections"]),"max_upward_cover_fraction_step":float(xi_diag["max_upward_cover_fraction_step"]),**local_summ}
+    # raw scale table + only transition-supported interpolation of d_eff
+    xraw=radii/xi50 if np.isfinite(xi50) and xi50>0 else np.full(len(radii),np.nan);deff_interp=np.full(len(radii),np.nan);deffr2_interp=np.full(len(radii),np.nan)
+    good=np.isfinite(xc)&np.isfinite(deff)&np.isfinite(deffr2)&(deffr2>=LOCAL_SLOPE_R2_MIN)&(deff>0)
+    if np.sum(good)>=2:
+        lo,hi=np.nanmin(xc[good]),np.nanmax(xc[good]);inside=np.isfinite(xraw)&(xraw>=lo)&(xraw<=hi);deff_interp[inside]=np.interp(np.log(xraw[inside]),np.log(xc[good]),deff[good]);deffr2_interp[inside]=np.interp(np.log(xraw[inside]),np.log(xc[good]),deffr2[good])
+    rows=[]
+    for k,ell in enumerate(radii):
+        rec={"scale_index":k,"ell_B":float(ell),"ell_over_xi50":float(xraw[k]),"NB":float(NB[k]),"NB_over_N":float(NB[k]/Ggeom.n_nodes),"lacunarity":float(lac[k]),"interbox_flow_fraction":float(inter[k]),"d_eff_interp":float(deff_interp[k]),"d_eff_r2_interp":float(deffr2_interp[k])}
+        for q in COARSE_RENYI_Q:rec[f"coarse_eta_q{q:g}"]=float(coarse[q][k])
+        rows.append(rec)
+    mask_comp=(nc>1)&np.isfinite(rc)&np.isfinite(nc);rcd,ncd,lcd=rc[mask_comp],nc[mask_comp],lc[mask_comp]
+    nfit=len(rcd);deff_c=deff if len(deff)==nfit else np.full(nfit,np.nan);deffr2_c=deffr2 if len(deffr2)==nfit else np.full(nfit,np.nan)
+    comp=pd.DataFrame({"ell_mid":rcd,"NB":ncd,"NB_over_N":ncd/Ggeom.n_nodes,"ell_over_xi50":rcd/xi50 if np.isfinite(xi50) else np.full(nfit,np.nan),"d_eff":deff_c,"d_eff_r2":deffr2_c,"lacunarity":lcd})
+    return summ,pd.DataFrame(rows),comp,local_df.assign(**{}) if len(local_df) else local_df
+
+
+
+# ==================================================================================================
+# 19. GEOMETRY STATE ADAPTERS / VALIDITY
+# ==================================================================================================
+
+
+def factor_state_to_geometry_state(state: Dict[str, Any], family: str) -> Optional[Dict[str, Any]]:
+    if state is None or not bool(state.get("valid", [False])[0]):
+        return None
+    if family == "mlp":
+        return {
+            "edge_flow": [np.asarray(e[0], float) for e in state["edge_flow"]],
+            "node_flow": [np.asarray(v[0], float) for v in state["node_flow"]],
+        }
+    return {
+        "occurrence_flow": [np.asarray(e[0], float) for e in state["occurrence_flow"]],
+        "parameter_flow": [np.asarray(p[0], float) for p in state.get("parameter_flow", [])],
+        "node_flow": [np.asarray(v[0], float) for v in state["node_flow"]],
+    }
+
+
+def geometry_validity_record(meta: Dict[str, Any], realization_defined: bool, gs: Optional[Dict[str, Any]], reason: str = "") -> Dict[str, Any]:
+    if not realization_defined:
+        return {
+            **meta,
+            "realization_defined": False,
+            "geometry_computed": False,
+            "geometry_status": "not_computed_no_realization",
+            "geometry_skip_reason": reason or "zero_complete_path_support",
+            "n_graph_nodes": 0,
+            "xi50_bracketed": False,
+            "deff_supported": False,
+            "local_geometry_supported": False,
+            "quotient_ks_defined": False,
+            "retention_defined": False,
+            "scaling_window_defined": False,
+            "scaling_credible": False,
+        }
+    if gs is None:
+        return {
+            **meta,
+            "realization_defined": True,
+            "geometry_computed": False,
+            "geometry_status": "geometry_exception",
+            "geometry_skip_reason": reason,
+            "n_graph_nodes": 0,
+            "xi50_bracketed": False,
+            "deff_supported": False,
+            "local_geometry_supported": False,
+            "quotient_ks_defined": False,
+            "retention_defined": False,
+            "scaling_window_defined": False,
+            "scaling_credible": False,
+        }
+    if bool(gs.get("geometry_skipped", False)):
+        return {
+            **meta,
+            "realization_defined": True,
+            "geometry_computed": False,
+            "geometry_status": "skipped_geometry_constraint",
+            "geometry_skip_reason": str(gs.get("geometry_skip_reason", "")),
+            "n_graph_nodes": int(gs.get("n_graph_nodes", 0)),
+            "xi50_bracketed": False,
+            "deff_supported": False,
+            "local_geometry_supported": False,
+            "quotient_ks_defined": False,
+            "retention_defined": False,
+            "scaling_window_defined": False,
+            "scaling_credible": False,
+        }
+    xi_ok = bool(gs.get("xi50_bracketed", False))
+    deff_ok = bool(np.isfinite(gs.get("d_star", np.nan)))
+    local_ok = bool(np.isfinite(gs.get("local_delta_median", np.nan)))
+    status = "computed" if xi_ok and deff_ok else ("computed_xi50_unbracketed" if not xi_ok else "computed_no_valid_deff")
+    return {
+        **meta,
+        "realization_defined": True,
+        "geometry_computed": True,
+        "geometry_status": status,
+        "geometry_skip_reason": "",
+        "n_graph_nodes": int(gs.get("n_graph_nodes", 0)),
+        "xi50_bracketed": xi_ok,
+        "deff_supported": deff_ok,
+        "local_geometry_supported": local_ok,
+        "quotient_ks_defined": bool(np.isfinite(gs.get("quotient_mean_pairwise_KS", np.nan))),
+        "retention_defined": bool(np.isfinite(gs.get("renorm_flow_retention_mean", np.nan))),
+        "scaling_window_defined": bool(np.isfinite(gs.get("scaling_dB", np.nan))),
+        "scaling_credible": bool(gs.get("scaling_credible", False)),
+        "transition_fraction": float(gs.get("transition_fraction", 0.0)),
+        "max_plateau_span_decades": float(gs.get("max_plateau_span_decades", 0.0)) if np.isfinite(gs.get("max_plateau_span_decades", np.nan)) else 0.0,
+        "cover_monotonicity_corrections": int(gs.get("cover_monotonicity_corrections", 0)),
+        "max_upward_cover_fraction_step": float(gs.get("max_upward_cover_fraction_step", 0.0)),
+    }
+
+
+def run_geometry_measurement(model: nn.Module, factor_state: Dict[str, Any], family: str, n_scales: int, compute_local: bool):
+    gstate = factor_state_to_geometry_state(factor_state, family)
+    if gstate is None:
+        return None, pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), False, "zero_complete_path_support"
+    try:
+        gs, scales, compressed, local = analyze_geometry(model, gstate, family, n_scales, compute_local=compute_local)
+        return gs, scales, compressed, local, True, ""
+    except Exception as e:
+        return None, pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), True, f"{type(e).__name__}: {e}"
+    finally:
+        gc.collect()
+
+
+def geometry_summary_error(a: Dict[str, Any], b: Dict[str, Any]) -> float:
+    keys = [
+        "xi50", "log_xi50", "d_star", "x_d_star", "lacunarity_star", "scaling_dB", "scaling_r2",
+        "quotient_mean_pairwise_KS", "renorm_flow_retention_mean", "transition_fraction", "max_plateau_span_decades",
+    ]
+    errs = []
+    for k in keys:
+        x, y = a.get(k, np.nan), b.get(k, np.nan)
+        fx, fy = np.isfinite(x), np.isfinite(y)
+        if fx and fy:
+            errs.append(abs(float(x) - float(y)))
+        elif fx != fy:
+            errs.append(float("inf"))
+    return max(errs) if errs else 0.0
+
+
+# ==================================================================================================
+# 20. GEOMETRY FAIL-FAST TESTS
+# ==================================================================================================
+
+
+@torch.no_grad()
+def run_geometry_operator_selftest() -> pd.DataFrame:
+    rows = []
+    gen = torch.Generator(device="cpu").manual_seed(SEED + 407)
+    cases = [
+        ("mlp", DeepMLP([8, 6], "tanh", 2, seed=SEED + 501, input_channels=1), torch.randn((1,1,IMAGE_RESOLUTION,IMAGE_RESOLUTION), generator=gen), 1),
+        ("cnn", DeepCNN({"hidden_channels":[2,2],"kernels":[3,3,1]}, "tanh", 2, seed=SEED + 503, input_channels=1), torch.randn((1,1,IMAGE_RESOLUTION,IMAGE_RESOLUTION), generator=gen), 1),
+    ]
+    for family, model, x, target_idx in cases:
+        model = model.to(DEVICE).eval()
+        x0 = torch.zeros_like(x)
+        base = baseline_condition(model, family, x, x0, target_idx)
+        if not bool(base["state"]["valid"][0]):
+            raise RuntimeError(f"Geometry self-test produced undefined {family} baseline.")
+        masks, _ = select_realized_masks(flow_list_from_state(base["state"], family), TARGET_FRACTION)
+        zero = intervene_condition(model, family, x, x0, target_idx, masks, base, alpha=0.0)
+        gs0, sc0, _, _, _, r0 = run_geometry_measurement(model, base["state"], family, 12, False)
+        gs1, sc1, _, _, _, r1 = run_geometry_measurement(model, zero["state"], family, 12, False)
+        if gs0 is None or gs1 is None:
+            raise RuntimeError(f"Geometry self-test failed to compute {family}: {r0} | {r1}")
+        serr = geometry_summary_error(gs0, gs1)
+        nb_err = 0.0
+        if len(sc0) != len(sc1):
+            nb_err = float("inf")
+        elif len(sc0):
+            nb_err = float(np.nanmax(np.abs(pd.to_numeric(sc0.NB, errors="coerce") - pd.to_numeric(sc1.NB, errors="coerce"))))
+        rows.extend([
+            {"family":family,"check":"alpha0_geometry_summary_identity","max_abs_error":serr,"tolerance":PREFLIGHT_TOL},
+            {"family":family,"check":"alpha0_geometry_covering_identity","max_abs_error":nb_err,"tolerance":0.0},
+        ])
+        del model
+        if torch.cuda.is_available(): torch.cuda.empty_cache()
+    df = pd.DataFrame(rows)
+    df["passed"] = pd.to_numeric(df.max_abs_error, errors="coerce") <= pd.to_numeric(df.tolerance, errors="coerce") + 1e-15
+    atomic_csv(df, OUTDIR / "tables" / "geometry_operator_selftest.csv")
+    if not bool(df.passed.all()):
+        raise RuntimeError("Geometry operator self-test failed.")
+    print(df.to_string(index=False))
+    return df
+
+
+@torch.no_grad()
+def run_exp4_geometry_preflight(manifest: pd.DataFrame, data_cache: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
+    preferred = manifest[
+        manifest.arch_id.astype(str).isin(["M2_sustained", "C2_bottleneck"])
+        & (manifest.optimizer.astype(str) == "adam")
+        & (manifest.activation.astype(str) == "relu")
+        & (pd.to_numeric(manifest.seed_index, errors="coerce") == 0)
+    ].copy()
+    rows = []
+    for _, row in tqdm(preferred.iterrows(), total=len(preferred), desc="EXP4 BCANw preflight"):
+        rid = str(row.run_id)
+        cp = checkpoint_path(rid)
+        h_before = file_sha1(cp)
+        model = build_model(str(row.arch_id), str(row.activation), output_dim_for(str(row.dataset)), str(row.dataset), int(row.seed_index))
+        model.load_state_dict(torch.load(cp, map_location="cpu")["state_dict"])
+        model.to(DEVICE).eval()
+        family = str(row.family)
+        for environment in ENVIRONMENTS:
+            X, Y = prepared_exp4_environment(data_cache[str(row.dataset)], str(row.dataset), environment)
+            x, y = X[:1], Y[:1]
+            x0 = torch.zeros_like(x)
+            target_idx = int(y.reshape(-1)[0].item()) if str(row.task) == "classification" else 0
+            base = baseline_condition(model, family, x, x0, target_idx)
+            if not bool(base["state"]["valid"][0]):
+                raise RuntimeError(f"EXP4 preflight baseline undefined: {rid} {environment}")
+            sets = construct_exp4_masks(
+                model, family, base, target_idx,
+                MATCH_SEED_BASE + int(stable_hash_dict({"run":rid,"env":environment,"c":0,"exp":4},8),16) % 1000003,
+            )
+            zero = intervene_condition(model, family, x, x0, target_idx, sets["realized"], base, alpha=0.0)
+            post = intervene_condition(model, family, x, x0, target_idx, sets["realized"], base, alpha=EXP4_ALPHA)
+            if not bool(post["valid"]):
+                raise RuntimeError(f"EXP4 preflight alpha={EXP4_ALPHA} realization undefined: {rid} {environment}")
+
+            gs_base, sc_base, _, _, _, rb = run_geometry_measurement(model, base["state"], family, PREFLIGHT_BCANW_SCALES, COMPUTE_LOCAL_GEOMETRY)
+            gs_zero, sc_zero, _, _, _, rz = run_geometry_measurement(model, zero["state"], family, PREFLIGHT_BCANW_SCALES, COMPUTE_LOCAL_GEOMETRY)
+            gs_post, _, _, _, _, rp = run_geometry_measurement(model, post["state"], family, PREFLIGHT_BCANW_SCALES, COMPUTE_LOCAL_GEOMETRY)
+            if gs_base is None or gs_zero is None or gs_post is None:
+                raise RuntimeError(f"EXP4 geometry preflight failed: {rid} {environment}: {rb} | {rz} | {rp}")
+            serr = geometry_summary_error(gs_base, gs_zero)
+            nb_err = 0.0 if len(sc_base)==len(sc_zero) else float("inf")
+            if len(sc_base)==len(sc_zero) and len(sc_base):
+                nb_err = float(np.nanmax(np.abs(pd.to_numeric(sc_base.NB, errors="coerce") - pd.to_numeric(sc_zero.NB, errors="coerce"))))
+            rows.extend([
+                {"run_id":rid,"dataset":row.dataset,"family":family,"environment":environment,"check":"alpha0_geometry_summary_identity","max_abs_error":serr,"tolerance":PREFLIGHT_TOL},
+                {"run_id":rid,"dataset":row.dataset,"family":family,"environment":environment,"check":"alpha0_geometry_covering_identity","max_abs_error":nb_err,"tolerance":0.0},
+                {"run_id":rid,"dataset":row.dataset,"family":family,"environment":environment,"check":"alpha025_geometry_computable","max_abs_error":0.0,"tolerance":0.0},
+                {"run_id":rid,"dataset":row.dataset,"family":family,"environment":environment,"check":"geometry_node_cap","max_abs_error":max(0.0,float(gs_base.get("n_graph_nodes",0)-BCANW_MAX_NODES)),"tolerance":0.0},
+            ])
+        h_after = file_sha1(cp)
+        rows.append({"run_id":rid,"dataset":row.dataset,"family":family,"environment":"all","check":"checkpoint_immutability","max_abs_error":0.0 if h_before==h_after else 1.0,"tolerance":0.0})
+        del model
+        if torch.cuda.is_available(): torch.cuda.empty_cache()
+    df = pd.DataFrame(rows)
+    df["passed"] = pd.to_numeric(df.max_abs_error, errors="coerce") <= pd.to_numeric(df.tolerance, errors="coerce") + 1e-15
+    atomic_csv(df, OUTDIR / "tables" / "bcanw_preflight.csv")
+    if not bool(df.passed.all()):
+        raise RuntimeError("Experiment 4 BCANw preflight failed; inspect bcanw_preflight.csv.")
+    return df
+
+
+
+# ==================================================================================================
+# 21. POPULATION-STATE CONSTRUCTION FOR THE MULTISCALE FOLLOW-UP
+# ==================================================================================================
+#
+# The canonical benchmark's publication BCANw panel is a POPULATION geometry: normalized conditional
+# edge/occurrence and node flows are averaged across a declared input population before the graph metric
+# is constructed. Experiment 4 preserves that convention. The same 10 balanced conditions used in
+# Experiments 2/3 contribute to each baseline/post-intervention population state. We therefore avoid
+# silently turning RQ6 into a new 25,920-state full input-resolved geometry campaign.
+#
+# For every frozen model and environment we construct four averaged flow states:
+#   baseline, realized-intervention, structural-intervention, matched-intervention.
+# One BCANw geometry is then measured for each state.
+# ==================================================================================================
+
+
+def _new_population_accumulator() -> Dict[str, Any]:
+    return {"n_valid":0, "edge_flow":None, "occurrence_flow":None, "parameter_flow":None, "node_flow":None}
+
+
+def _add_geometry_state_to_accumulator(acc: Dict[str, Any], factor_state: Dict[str, Any], family: str):
+    g = factor_state_to_geometry_state(factor_state, family)
+    if g is None:
+        return
+    if acc["n_valid"] == 0:
+        if family == "mlp":
+            acc["edge_flow"] = [np.asarray(x,float).copy() for x in g["edge_flow"]]
+        else:
+            acc["occurrence_flow"] = [np.asarray(x,float).copy() for x in g["occurrence_flow"]]
+            acc["parameter_flow"] = [np.asarray(x,float).copy() for x in g.get("parameter_flow", [])]
+        acc["node_flow"] = [np.asarray(x,float).copy() for x in g["node_flow"]]
+    else:
+        if family == "mlp":
+            for i,x in enumerate(g["edge_flow"]): acc["edge_flow"][i] += np.asarray(x,float)
+        else:
+            for i,x in enumerate(g["occurrence_flow"]): acc["occurrence_flow"][i] += np.asarray(x,float)
+            for i,x in enumerate(g.get("parameter_flow", [])): acc["parameter_flow"][i] += np.asarray(x,float)
+        for i,x in enumerate(g["node_flow"]): acc["node_flow"][i] += np.asarray(x,float)
+    acc["n_valid"] += 1
+
+
+def _finalize_population_accumulator(acc: Dict[str, Any], family: str) -> Optional[Dict[str, Any]]:
+    n = int(acc["n_valid"])
+    if n <= 0:
+        return None
+    if family == "mlp":
+        return {
+            "edge_flow":[x/n for x in acc["edge_flow"]],
+            "node_flow":[x/n for x in acc["node_flow"]],
+        }
+    return {
+        "occurrence_flow":[x/n for x in acc["occurrence_flow"]],
+        "parameter_flow":[x/n for x in acc["parameter_flow"]],
+        "node_flow":[x/n for x in acc["node_flow"]],
+    }
+
+
+def run_population_geometry_measurement(model: nn.Module, gstate: Optional[Dict[str, Any]], family: str,
+                                        n_scales: int, compute_local: bool):
+    if gstate is None:
+        return None, pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), "zero_valid_conditions"
+    try:
+        gs, scales, compressed, local = analyze_geometry(model, gstate, family, n_scales, compute_local=compute_local)
+        return gs, scales, compressed, local, ""
+    except Exception as e:
+        return None, pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), f"{type(e).__name__}: {e}"
+    finally:
+        gc.collect()
+
+
+# ==================================================================================================
+# 22. RESUMABLE PER-MODEL POPULATION BCANw CAMPAIGN
+# ==================================================================================================
+
+
+def exp4_part_path(run_id: str, kind: str) -> Path:
+    return OUTDIR / "run_parts" / f"{run_id}__EXP4__{kind}.csv"
+
+
+def exp4_done_path(run_id: str) -> Path:
+    return OUTDIR / "run_parts" / f"{run_id}__EXP4__DONE.json"
+
+
+def load_existing_exp4_parts(run_id: str):
+    kinds = [
+        "geometry_summary", "geometry_validity", "condition_measurements", "condition_validity",
+        "target_audit", "geometry_scales", "geometry_compressed", "local_geometry"
+    ]
+    out=[]
+    for kind in kinds:
+        p=exp4_part_path(run_id,kind)
+        out.append(safe_read_csv(p).to_dict("records") if RESUME and p.exists() else [])
+    return tuple(out)
+
+
+def exp4_completed_geometry_keys(run_id: str) -> set:
+    p=exp4_part_path(run_id,"geometry_validity")
+    if not (RESUME and p.exists()): return set()
+    df=safe_read_csv(p)
+    req={"environment","geometry_state"}
+    if not req.issubset(df.columns): return set()
+    return {(str(r.environment),str(r.geometry_state)) for _,r in df.iterrows()}
+
+
+def flush_exp4_parts(run_id: str, summaries, geometry_validity, condition_measurements, condition_validity,
+                     audit, scales, compressed, local_rows):
+    atomic_csv(pd.DataFrame(summaries),exp4_part_path(run_id,"geometry_summary"))
+    atomic_csv(pd.DataFrame(geometry_validity),exp4_part_path(run_id,"geometry_validity"))
+    atomic_csv(pd.DataFrame(condition_measurements),exp4_part_path(run_id,"condition_measurements"))
+    atomic_csv(pd.DataFrame(condition_validity),exp4_part_path(run_id,"condition_validity"))
+    atomic_csv(pd.DataFrame(audit),exp4_part_path(run_id,"target_audit"))
+    atomic_csv(pd.DataFrame(scales),exp4_part_path(run_id,"geometry_scales"))
+    atomic_csv(pd.DataFrame(compressed),exp4_part_path(run_id,"geometry_compressed"))
+    if COMPUTE_LOCAL_GEOMETRY:
+        atomic_csv(pd.DataFrame(local_rows),exp4_part_path(run_id,"local_geometry"))
+
+
+def _geometry_population_validity(meta: Dict[str,Any], n_valid: int, gs: Optional[Dict[str,Any]], reason: str,
+                                  seconds: float) -> Dict[str,Any]:
+    realization_defined = int(n_valid) > 0
+    rec = geometry_validity_record(meta, realization_defined, gs, reason)
+    rec["n_conditions_evaluated"] = int(EXP4_CONDITION_COUNT)
+    rec["n_valid_conditions"] = int(n_valid)
+    rec["conditional_valid_fraction"] = float(n_valid/max(EXP4_CONDITION_COUNT,1))
+    rec["geometry_seconds"] = float(seconds)
+    return rec
+
+
+def _append_population_geometry(meta: Dict[str,Any], model: nn.Module, gstate: Optional[Dict[str,Any]], family: str,
+                                n_valid: int, summaries: list, geometry_validity: list, scales_rows: list,
+                                compressed_rows: list, local_rows: list, condition_stats: Dict[str,float]):
+    t0=time.perf_counter()
+    gs,sc,comp,local,reason=run_population_geometry_measurement(model,gstate,family,BCANW_SCALES,COMPUTE_LOCAL_GEOMETRY)
+    sec=time.perf_counter()-t0
+    geometry_validity.append(_geometry_population_validity(meta,n_valid,gs,reason,sec))
+    if gs is not None and not bool(gs.get("geometry_skipped",False)):
+        clean={k:v for k,v in gs.items() if k not in ["geometry_skipped","geometry_skip_reason"]}
+        summaries.append({**meta,**clean,**condition_stats,"n_conditions_evaluated":int(EXP4_CONDITION_COUNT),
+                          "n_valid_conditions":int(n_valid),"conditional_valid_fraction":float(n_valid/max(EXP4_CONDITION_COUNT,1)),
+                          "geometry_seconds":float(sec)})
+        if len(sc):
+            for _,rr in sc.iterrows(): scales_rows.append({**meta,**rr.to_dict()})
+        if len(comp):
+            for _,rr in comp.iterrows(): compressed_rows.append({**meta,**rr.to_dict()})
+        if COMPUTE_LOCAL_GEOMETRY and len(local):
+            for _,rr in local.iterrows(): local_rows.append({**meta,**rr.to_dict()})
+    return sec
+
+
+@torch.no_grad()
+def run_exp4_one_model(row: pd.Series, data: Dict[str,Any]) -> bool:
+    rid=str(row.run_id)
+    if RESUME and exp4_done_path(rid).exists(): return True
+    cp=checkpoint_path(rid); cp_hash_before=file_sha1(cp)
+    model=build_model(str(row.arch_id),str(row.activation),output_dim_for(str(row.dataset)),str(row.dataset),int(row.seed_index))
+    model.load_state_dict(torch.load(cp,map_location="cpu")["state_dict"]); model.to(DEVICE).eval()
+    family=str(row.family)
+
+    summaries,gvalid,cmeasure,cvalid,audit,scales_rows,compressed_rows,local_rows=load_existing_exp4_parts(rid)
+    done=exp4_completed_geometry_keys(rid)
+    bar=tqdm(total=len(ENVIRONMENTS),desc=f"EXP4 {rid[:46]}",leave=False)
+
+    for environment in ENVIRONMENTS:
+        expected={(environment,s) for s in GEOMETRY_STATES}
+        if expected.issubset(done):
+            bar.update(1); continue
+        if not can_start_new_unit("EXP4 population environment",extra_buffer_min=GEOM_CONDITION_BUFFER_MIN):
+            flush_exp4_parts(rid,summaries,gvalid,cmeasure,cvalid,audit,scales_rows,compressed_rows,local_rows)
+            bar.close(); del model
+            if torch.cuda.is_available(): torch.cuda.empty_cache()
+            return False
+
+        # Condition-level computation is cheap relative to BCANw and is rebuilt atomically whenever
+        # an environment is incomplete. This avoids stale/duplicated condition rows after wall stops.
+        cmeasure=[r for r in cmeasure if str(r.get("environment",""))!=environment]
+        cvalid=[r for r in cvalid if str(r.get("environment",""))!=environment]
+        audit=[r for r in audit if str(r.get("environment",""))!=environment]
+
+        accum={s:_new_population_accumulator() for s in GEOMETRY_STATES}
+        X,Y=prepared_exp4_environment(data,str(row.dataset),environment)
+        structural_cache: Dict[int,Dict[str,Any]]={}
+
+        for ci in range(len(X)):
+            x,y=X[ci:ci+1],Y[ci:ci+1]; x0=torch.zeros_like(x)
+            target_idx=int(y.reshape(-1)[0].item()) if str(row.task)=="classification" else 0
+            common={
+                "run_id":rid,"dataset":str(row.dataset),"task":str(row.task),"family":family,
+                "arch_id":str(row.arch_id),"optimizer":str(row.optimizer),"activation":str(row.activation),
+                "seed_index":int(row.seed_index),"environment":environment,"condition_index":int(ci),
+                "target_output":int(target_idx),"alpha":float(EXP4_ALPHA),"target_fraction":float(TARGET_FRACTION),
+            }
+            base=baseline_condition(model,family,x,x0,target_idx); base_valid=bool(base["state"]["valid"][0])
+            cvalid.append({**common,"geometry_state":"baseline","intervention_type":"none",
+                           "baseline_realization_defined":base_valid,"intervention_applicable":False,
+                           "intervened_realization_defined":base_valid,"intervention_induced_degeneracy":False,
+                           "status":"defined" if base_valid else "baseline_zero_complete_path_support"})
+            if not base_valid:
+                for typ in INTERVENTION_TYPES:
+                    cvalid.append({**common,"geometry_state":typ,"intervention_type":typ,
+                                   "baseline_realization_defined":False,"intervention_applicable":False,
+                                   "intervened_realization_defined":False,"intervention_induced_degeneracy":False,
+                                   "status":"not_applicable_baseline_zero_support"})
+                continue
+
+            _add_geometry_state_to_accumulator(accum["baseline"],base["state"],family)
+            cmeasure.append({**common,"geometry_state":"baseline","intervention_type":"none",
+                             "path_hellinger":0.0,"manifestation_abs":0.0,
+                             "eta1":float(base["state"]["eta1"][0]),"eta2":float(base["state"]["eta2"][0]),
+                             "Sdef":float(base["state"]["entropy_deficit"][0]),
+                             "Sdef_norm":float(base["state"]["entropy_deficit_norm"][0])})
+
+            real_flow=flow_list_from_state(base["state"],family)
+            real_masks,real_audit=select_realized_masks(real_flow,TARGET_FRACTION); counts=target_counts(real_masks)
+            if int(sum(counts))<=0: raise RuntimeError(f"No realized intervention elements: {rid} {environment} c={ci}")
+            if target_idx not in structural_cache:
+                structural_cache[target_idx]=output_matched_structural_state(model,family,target_idx)
+            st_struct=structural_cache[target_idx]
+            if not bool(st_struct["valid"][0]): raise RuntimeError(f"Undefined structural state: {rid} target={target_idx}")
+            struct_masks=select_top_k_masks(flow_list_from_state(st_struct,family),counts)
+            scores=ordinary_activation_scores_mlp(model,base["hs"],base["hs0"]) if family=="mlp" else ordinary_activation_scores_cnn(model,base["hs"],base["hs0"])
+            support=positive_support_masks(real_flow)
+            match_seed=MATCH_SEED_BASE+int(stable_hash_dict({"run":rid,"env":environment,"c":ci,"exp":4},8),16)%1000003
+            matched_masks,matched_audit=select_matched_masks(real_masks,scores,support,match_seed)
+            if not (target_counts(real_masks)==target_counts(struct_masks)==target_counts(matched_masks)):
+                raise RuntimeError(f"Experiment 4 intervention budget mismatch: {rid} {environment} c={ci}")
+            mask_map={"realized":real_masks,"structural":struct_masks,"matched":matched_masks}
+            jacc,per_jacc=jaccard_masks(real_masks,struct_masks)
+            for li,ra in enumerate(real_audit):
+                ma=matched_audit[li]
+                audit.append({**common,"layer":int(li),"n_total":int(ra["n_total"]),"n_positive_flow":int(ra["n_positive_flow"]),
+                              "n_targets":int(ra["n_targets"]),"positive_support_fraction":float(ra["positive_support_fraction"]),
+                              "realized_selected_flow_mass":float(ra["selected_flow_mass"]),
+                              "realized_structural_jaccard_layer":float(per_jacc[li]) if np.isfinite(per_jacc[li]) else np.nan,
+                              "realized_mask_hash":hash_indices(real_masks[li]),"structural_mask_hash":hash_indices(struct_masks[li]),
+                              "matched_mask_hash":hash_indices(matched_masks[li]),"matched_activation_ks":ma["matched_activation_ks"],
+                              "realized_activation_median":ma["realized_activation_median"],"matched_activation_median":ma["matched_activation_median"],
+                              "matched_to_realized_activation_median_ratio":ma["matched_to_realized_activation_median_ratio"],
+                              "matched_borrowed_fraction":ma["borrowed_fraction"]})
+
+            for typ in INTERVENTION_TYPES:
+                result=intervene_condition(model,family,x,x0,target_idx,mask_map[typ],base,alpha=EXP4_ALPHA)
+                int_valid=bool(result["valid"])
+                cvalid.append({**common,"geometry_state":typ,"intervention_type":typ,
+                               "baseline_realization_defined":True,"intervention_applicable":True,
+                               "intervened_realization_defined":int_valid,"intervention_induced_degeneracy":bool(not int_valid),
+                               "status":"defined" if int_valid else "intervened_zero_complete_path_support"})
+                mrec=manifestation_record(str(row.dataset),y,target_idx,base["out"],base["out0"],result["out"],result["out0"])
+                rec={**common,"geometry_state":typ,"intervention_type":typ,
+                     "path_hellinger":float(result["hellinger"]) if np.isfinite(result["hellinger"]) else np.nan,
+                     "manifestation_abs":float(mrec["manifestation_abs"])}
+                if int_valid:
+                    _add_geometry_state_to_accumulator(accum[typ],result["state"],family)
+                    rec.update({"eta1":float(result["state"]["eta1"][0]),"eta2":float(result["state"]["eta2"][0]),
+                                "Sdef":float(result["state"]["entropy_deficit"][0]),"Sdef_norm":float(result["state"]["entropy_deficit_norm"][0]),
+                                "delta_eta1":float(result["state"]["eta1"][0]-base["state"]["eta1"][0]),
+                                "delta_eta2":float(result["state"]["eta2"][0]-base["state"]["eta2"][0]),
+                                "delta_Sdef":float(result["state"]["entropy_deficit"][0]-base["state"]["entropy_deficit"][0]),
+                                "delta_Sdef_norm":float(result["state"]["entropy_deficit_norm"][0]-base["state"]["entropy_deficit_norm"][0])})
+                cmeasure.append(rec)
+
+        # Persist the condition-level evidence before any expensive all-pairs graph geometry starts.
+        flush_exp4_parts(rid,summaries,gvalid,cmeasure,cvalid,audit,scales_rows,compressed_rows,local_rows)
+
+        cond_df=pd.DataFrame([r for r in cmeasure if str(r.get("environment",""))==environment])
+        for state_name in GEOMETRY_STATES:
+            key=(environment,state_name)
+            if key in done: continue
+            if not can_start_new_unit("EXP4 BCANw state",extra_buffer_min=GEOM_CONDITION_BUFFER_MIN):
+                flush_exp4_parts(rid,summaries,gvalid,cmeasure,cvalid,audit,scales_rows,compressed_rows,local_rows)
+                bar.close(); del model
+                if torch.cuda.is_available(): torch.cuda.empty_cache()
+                return False
+            gstate=_finalize_population_accumulator(accum[state_name],family)
+            n_valid=int(accum[state_name]["n_valid"])
+            typ="none" if state_name=="baseline" else state_name
+            meta={"run_id":rid,"dataset":str(row.dataset),"task":str(row.task),"family":family,
+                  "arch_id":str(row.arch_id),"optimizer":str(row.optimizer),"activation":str(row.activation),
+                  "seed_index":int(row.seed_index),"environment":environment,"geometry_state":state_name,
+                  "intervention_type":typ,"alpha":float(EXP4_ALPHA),"target_fraction":float(TARGET_FRACTION),
+                  "bcanw_scales":int(BCANW_SCALES),"population_aggregation":"mean_of_normalized_condition_flows"}
+            sub=cond_df[cond_df.geometry_state.astype(str)==state_name] if len(cond_df) else pd.DataFrame()
+            condition_stats={
+                "median_path_hellinger":float(pd.to_numeric(sub.path_hellinger,errors="coerce").median()) if len(sub) and "path_hellinger" in sub else np.nan,
+                "median_manifestation_abs":float(pd.to_numeric(sub.manifestation_abs,errors="coerce").median()) if len(sub) and "manifestation_abs" in sub else np.nan,
+                "median_eta1":float(pd.to_numeric(sub.eta1,errors="coerce").median()) if len(sub) and "eta1" in sub else np.nan,
+                "median_eta2":float(pd.to_numeric(sub.eta2,errors="coerce").median()) if len(sub) and "eta2" in sub else np.nan,
+                "median_Sdef":float(pd.to_numeric(sub.Sdef,errors="coerce").median()) if len(sub) and "Sdef" in sub else np.nan,
+            }
+            _append_population_geometry(meta,model,gstate,family,n_valid,summaries,gvalid,scales_rows,compressed_rows,local_rows,condition_stats)
+            done.add(key)
+            flush_exp4_parts(rid,summaries,gvalid,cmeasure,cvalid,audit,scales_rows,compressed_rows,local_rows)
+
+        bar.update(1)
+
+    bar.close(); flush_exp4_parts(rid,summaries,gvalid,cmeasure,cvalid,audit,scales_rows,compressed_rows,local_rows)
+    cp_hash_after=file_sha1(cp)
+    if cp_hash_before!=cp_hash_after: raise RuntimeError(f"SOURCE CHECKPOINT CHANGED DURING EXPERIMENT 4: {cp}")
+    atomic_json({"run_id":rid,"completed":True,"checkpoint_sha1":cp_hash_before,
+                 "n_geometry_summary_rows":len(summaries),"n_geometry_validity_rows":len(gvalid),
+                 "n_condition_measurement_rows":len(cmeasure),"n_condition_validity_rows":len(cvalid),
+                 "n_target_audit_rows":len(audit),"alpha":float(EXP4_ALPHA),"bcanw_scales":int(BCANW_SCALES),
+                 "timestamp_unix":time.time()},exp4_done_path(rid))
+    del model
+    if torch.cuda.is_available(): torch.cuda.empty_cache()
+    gc.collect(); return True
+
+
+# ==================================================================================================
+# 23. AGGREGATION AND RQ6 STATISTICS
+# ==================================================================================================
+
+GEOMETRY_METRICS=["log_xi50","d_star","x_d_star","lacunarity_star","scaling_dB",
+                  "quotient_mean_pairwise_KS","renorm_flow_retention_mean","transition_fraction",
+                  "max_plateau_span_decades"]
+if COMPUTE_LOCAL_GEOMETRY: GEOMETRY_METRICS.append("local_delta_median")
+
+
+def aggregate_exp4_parts(manifest: pd.DataFrame) -> Dict[str,pd.DataFrame]:
+    kinds=["geometry_summary","geometry_validity","condition_measurements","condition_validity","target_audit"]
+    if AGGREGATE_SCALE_TABLES: kinds += ["geometry_scales","geometry_compressed"]
+    if COMPUTE_LOCAL_GEOMETRY and AGGREGATE_SCALE_TABLES: kinds += ["local_geometry"]
+    out={}
+    for kind in kinds:
+        dfs=[]
+        for rid in manifest.run_id.astype(str):
+            p=exp4_part_path(rid,kind)
+            if p.exists() and p.stat().st_size>1:
+                d=safe_read_csv(p)
+                if len(d): dfs.append(d)
+        out[kind]=pd.concat(dfs,ignore_index=True) if dfs else pd.DataFrame()
+        if len(out[kind]): atomic_csv(out[kind],OUTDIR/"tables"/f"{kind}.csv")
+    return out
+
+
+def validate_exp4_tables(tabs: Dict[str,pd.DataFrame], manifest: pd.DataFrame):
+    gv=tabs.get("geometry_validity",pd.DataFrame())
+    cv=tabs.get("condition_validity",pd.DataFrame())
+    if gv.empty or cv.empty: raise RuntimeError("Experiment 4 validity tables are incomplete/empty.")
+    gkey=["run_id","environment","geometry_state"]
+    ckey=["run_id","environment","condition_index","geometry_state"]
+    if gv.duplicated(gkey,keep=False).any(): raise RuntimeError("Duplicate Experiment 4 population geometry validity keys.")
+    if cv.duplicated(ckey,keep=False).any(): raise RuntimeError("Duplicate Experiment 4 condition validity keys.")
+    expected_g=len(manifest)*len(ENVIRONMENTS)*len(GEOMETRY_STATES)
+    expected_c=len(manifest)*len(ENVIRONMENTS)*EXP4_CONDITION_COUNT*len(GEOMETRY_STATES)
+    if len(gv)!=expected_g: raise RuntimeError(f"Expected {expected_g} population geometry validity rows, found {len(gv)}")
+    if len(cv)!=expected_c: raise RuntimeError(f"Expected {expected_c} condition validity rows, found {len(cv)}")
+
+
+def population_geometry_deltas(g: pd.DataFrame) -> pd.DataFrame:
+    if g.empty: return pd.DataFrame()
+    keys=["run_id","dataset","task","family","arch_id","optimizer","activation","seed_index","environment"]
+    base=g[g.geometry_state.astype(str)=="baseline"].copy(); rows=[]
+    for typ in INTERVENTION_TYPES:
+        post=g[g.geometry_state.astype(str)==typ].copy(); merged=base.merge(post,on=keys,suffixes=("_base","_post"),how="inner")
+        for metric in GEOMETRY_METRICS:
+            bc,pc=metric+"_base",metric+"_post"
+            if bc not in merged or pc not in merged: continue
+            for _,rr in merged.iterrows():
+                bv=pd.to_numeric(pd.Series([rr[bc]]),errors="coerce").iloc[0]; pv=pd.to_numeric(pd.Series([rr[pc]]),errors="coerce").iloc[0]
+                if not (np.isfinite(bv) and np.isfinite(pv)): continue
+                rows.append({**{k:rr[k] for k in keys},"intervention_type":typ,"metric":metric,
+                             "baseline_value":float(bv),"post_value":float(pv),"delta":float(pv-bv),"abs_delta":float(abs(pv-bv)),
+                             "median_path_hellinger":float(rr.get("median_path_hellinger_post",np.nan)) if np.isfinite(rr.get("median_path_hellinger_post",np.nan)) else np.nan,
+                             "median_manifestation_abs":float(rr.get("median_manifestation_abs_post",np.nan)) if np.isfinite(rr.get("median_manifestation_abs_post",np.nan)) else np.nan})
+    df=pd.DataFrame(rows)
+    if len(df): atomic_csv(df,OUTDIR/"tables"/"population_geometry_deltas.csv")
+    return df
+
+
+def _one_sample_test(d: np.ndarray) -> Dict[str,Any]:
+    d=np.asarray(d,float); d=d[np.isfinite(d)]
+    if len(d)==0: return {"n":0,"median":np.nan,"hl":np.nan,"rank_biserial":np.nan,"positive_fraction":np.nan,"p":np.nan,"ci_low":np.nan,"ci_high":np.nan}
+    try: p=1.0 if np.allclose(d,0) else float(wilcoxon(d,alternative="two-sided",zero_method="wilcox").pvalue)
+    except Exception: p=np.nan
+    lo,hi=bootstrap_median_ci(d,seed=SEED+811,B=2000)
+    return {"n":int(len(d)),"median":float(np.median(d)),"hl":hodges_lehmann_onesample(d),"rank_biserial":paired_rank_biserial(d),
+            "positive_fraction":float(np.mean(d>0)),"p":p,"ci_low":lo,"ci_high":hi}
+
+
+def rq6_multiscale_tests(delta: pd.DataFrame) -> pd.DataFrame:
+    rows=[]
+    strata=[("overall",[]),("family",["family"]),("activation",["activation"]),("family_activation",["family","activation"])]
+    for dataset in sorted(delta.dataset.unique()):
+        for environment in sorted(delta.environment.unique()):
+            de=delta[(delta.dataset==dataset)&(delta.environment==environment)]
+            for metric in sorted(de.metric.unique()):
+                dm=de[de.metric==metric]
+                for sname,cols in strata:
+                    grouped=[((),dm)] if not cols else dm.groupby(cols,dropna=False)
+                    for key,sub in grouped:
+                        if not isinstance(key,tuple): key=(key,)
+                        lab={c:str(v) for c,v in zip(cols,key)}
+                        r=sub[sub.intervention_type=="realized"]
+                        rows.append({"dataset":dataset,"environment":environment,"metric":metric,"stratum":sname,**lab,
+                                     "contrast":"realized_post_minus_baseline",**_one_sample_test(pd.to_numeric(r.delta,errors="coerce").to_numpy(float))})
+                        a=r[["run_id","abs_delta"]].rename(columns={"abs_delta":"a"})
+                        for comp in ["matched","structural"]:
+                            b=sub[sub.intervention_type==comp][["run_id","abs_delta"]].rename(columns={"abs_delta":"b"})
+                            ab=a.merge(b,on="run_id")
+                            rows.append({"dataset":dataset,"environment":environment,"metric":metric,"stratum":sname,**lab,
+                                         "contrast":f"abs_change_realized_minus_{comp}",
+                                         **_one_sample_test((pd.to_numeric(ab.a,errors="coerce")-pd.to_numeric(ab.b,errors="coerce")).to_numpy(float))})
+    out=pd.DataFrame(rows)
+    if len(out):
+        out["p_holm"]=holm_adjust(pd.to_numeric(out.p,errors="coerce").to_numpy(float))
+        atomic_csv(out,OUTDIR/"tables"/"RQ6_multiscale_tests.csv")
+    return out
+
+
+def hellinger_geometry_association(delta: pd.DataFrame) -> pd.DataFrame:
+    rows=[]
+    realized=delta[delta.intervention_type=="realized"].copy()
+    for dataset in sorted(realized.dataset.unique()):
+        for environment in sorted(realized.environment.unique()):
+            for metric in sorted(realized.metric.unique()):
+                sub=realized[(realized.dataset==dataset)&(realized.environment==environment)&(realized.metric==metric)]
+                for sname,cols in [("overall",[]),("family",["family"]),("activation",["activation"])]:
+                    grouped=[((),sub)] if not cols else sub.groupby(cols,dropna=False)
+                    for key,g in grouped:
+                        if not isinstance(key,tuple): key=(key,)
+                        x=pd.to_numeric(g.median_path_hellinger,errors="coerce").to_numpy(float)
+                        y=pd.to_numeric(g.abs_delta,errors="coerce").to_numpy(float); good=np.isfinite(x)&np.isfinite(y)
+                        rho=float(spearmanr(x[good],y[good]).statistic) if good.sum()>=8 and np.nanstd(x[good])>0 and np.nanstd(y[good])>0 else np.nan
+                        rows.append({"dataset":dataset,"environment":environment,"metric":metric,"stratum":sname,
+                                     **{c:str(v) for c,v in zip(cols,key)},"n_models":int(good.sum()),"spearman_rho":rho})
+    out=pd.DataFrame(rows)
+    if len(out): atomic_csv(out,OUTDIR/"tables"/"RQ6_hellinger_geometry_associations.csv")
+    return out
+
+
+def geometry_validity_summary(gv: pd.DataFrame) -> pd.DataFrame:
+    rows=[]
+    for keys,sub in gv.groupby(["dataset","environment","geometry_state"],dropna=False):
+        rows.append({"dataset":keys[0],"environment":keys[1],"geometry_state":keys[2],"n_states":len(sub),
+                     "geometry_computed_fraction":float(sub.geometry_computed.astype(bool).mean()),
+                     "xi50_bracketed_fraction":float(sub.xi50_bracketed.astype(bool).mean()),
+                     "deff_supported_fraction":float(sub.deff_supported.astype(bool).mean()),
+                     "scaling_credible_fraction":float(sub.scaling_credible.astype(bool).mean()),
+                     "quotient_ks_defined_fraction":float(sub.quotient_ks_defined.astype(bool).mean()),
+                     "retention_defined_fraction":float(sub.retention_defined.astype(bool).mean())})
+    out=pd.DataFrame(rows); atomic_csv(out,OUTDIR/"tables"/"geometry_validity_summary.csv"); return out
+
+
+def make_exp4_figures(delta: pd.DataFrame):
+    if not RUN_FIGURES or delta.empty: return
+    import matplotlib.pyplot as plt
+    wanted=[m for m in ["log_xi50","d_star","lacunarity_star","renorm_flow_retention_mean","transition_fraction"] if m in set(delta.metric)]
+    for dataset in sorted(delta.dataset.unique()):
+        for environment in sorted(delta.environment.unique()):
+            sub=delta[(delta.dataset==dataset)&(delta.environment==environment)]
+            fig,axes=plt.subplots(len(wanted),1,figsize=(10,max(3.5,3.0*len(wanted))),squeeze=False)
+            for ax,metric in zip(axes[:,0],wanted):
+                groups=[];labels=[]
+                for typ in INTERVENTION_TYPES:
+                    vals=pd.to_numeric(sub[(sub.metric==metric)&(sub.intervention_type==typ)].delta,errors="coerce").dropna().to_numpy(float)
+                    if len(vals): groups.append(vals);labels.append(typ)
+                if groups:
+                    ax.boxplot(groups,labels=labels,showfliers=False);ax.axhline(0.0,linewidth=1.0)
+                ax.set_ylabel(metric)
+            axes[-1,0].set_xlabel("intervention set")
+            fig.suptitle(f"Experiment 4 population BCANw change | {dataset} | {environment}")
+            fig.tight_layout(); fig.savefig(OUTDIR/"figures"/f"exp4_population_bcanw_{dataset}_{environment}.png",dpi=300,bbox_inches="tight")
+            fig.savefig(OUTDIR/"figures"/f"exp4_population_bcanw_{dataset}_{environment}.pdf",bbox_inches="tight"); plt.close(fig)
+
+
+# Redefine the manifest for the population-geometry design.
+def write_exp4_manifest(manifest: pd.DataFrame, population: pd.DataFrame):
+    obj={"study":"Work II Experiment 4 multiscale follow-up","RQ6":"Does the multiscale organization also change under intervention?",
+         "causal_interpretation_guard":"BCANw is a downstream representation of intervened conditional realization, not the causal mechanism.",
+         "exp1_results":str(EXP1_RESULTS),"source_checkpoint_dir":str(SOURCE_CHECKPOINT_DIR),"output_dir":str(OUTDIR),
+         "datasets":list(DATASETS),"architectures":list(ARCH_IDS),"optimizers":list(OPTIMIZERS),"activations":list(ACTIVATIONS),"seeds":list(SEEDS),
+         "trained_networks_declared":int(len(manifest)),"conditions_per_population_state":int(EXP4_CONDITION_COUNT),"environments":list(ENVIRONMENTS),
+         "condition_definition":"c=(x,0), preserving the benchmark case-study condition","attenuation_alpha":float(EXP4_ALPHA),
+         "gate_on_selected":float(1.0-EXP4_ALPHA),"target_fraction":float(TARGET_FRACTION),"intervention_sets":list(INTERVENTION_TYPES),
+         "population_geometry_states":list(GEOMETRY_STATES),
+         "population_aggregation":"arithmetic mean of per-condition normalized edge/occurrence and node flows, matching canonical benchmark population-state semantics",
+         "declared_population_bcanw_measurements":int(len(manifest)*len(ENVIRONMENTS)*len(GEOMETRY_STATES)),
+         "condition_level_intervention_evaluations":int(len(manifest)*EXP4_CONDITION_COUNT*len(ENVIRONMENTS)*len(INTERVENTION_TYPES)),
+         "bcanw_scales":int(BCANW_SCALES),"bcanw_max_nodes":int(BCANW_MAX_NODES),"compute_local_geometry":bool(COMPUTE_LOCAL_GEOMETRY),
+         "geometry_carrier":{"mlp":"edge_flow","cnn":"spatial occurrence_flow"},"metric_rule":"lambda_e=(flow_enrichment+EPS)^(-1), power=1",
+         "distance_rule":"undirected shortest-path support, directed quotient flow","plateau_rule":"constant-NB plateaus represented by geometric midpoint",
+         "xi50_rule":"defined only when target cover fraction is bracketed; log-log interpolation","deff_rule":"transition-supported compressed staircase only",
+         "scaling_credibility":{"r2_min":SCALING_R2_MIN,"min_dim":SCALING_MIN_DIM,"min_points":SCALING_MIN_POINTS,
+                                "min_span_decades":SCALING_MIN_SPAN_DECADES,"min_NB_ratio":SCALING_MIN_NB_RATIO},
+         "cohort_rows":int(len(population)),"device":DEVICE,"cpu_threads":int(CPU_THREADS),"slurm_job_id":os.environ.get("SLURM_JOB_ID","")}
+    atomic_json(obj,OUTDIR/"experiment_manifest.json")
+
+
+# ==================================================================================================
+# 24. ORCHESTRATION
+# ==================================================================================================
+
+
+def run_experiment4():
+    start=time.perf_counter(); banner("WORK II — EXPERIMENT 4: POST-INTERVENTION BCANw MULTISCALE FOLLOW-UP")
+    print(f"Device: {DEVICE} | CPU threads: {CPU_THREADS}")
+    print(f"Script/runtime root: {SCRIPT_DIR}")
+    print(f"Experiment 1 source: {EXP1_RESULTS}")
+    print(f"Experiment 4 output: {OUTDIR}")
+    print(f"Data root: {DATA_ROOT}")
+    print(f"Slurm job: {os.environ.get('SLURM_JOB_ID','')} | node: {os.environ.get('SLURMD_NODENAME','')} | submit: {os.environ.get('SLURM_SUBMIT_DIR','')}")
+    if REQUIRE_CUDA and not SELFTEST_ONLY and DEVICE!="cuda":
+        raise RuntimeError("Experiment 4 full profile requires CUDA. Set PATHFLOW_EXP4_REQUIRE_CUDA=0 only for deliberate CPU testing.")
+
+    banner("Dataset-free intervention and BCANw self-tests")
+    operator=run_operator_selftest(); geometry_operator=run_geometry_operator_selftest()
+    if SELFTEST_ONLY: return {"operator_selftest":operator,"geometry_operator_selftest":geometry_operator}
+
+    manifest=build_manifest(); inventory=verify_exp1_checkpoint_source(manifest); data_cache=load_datasets()
+    population=attach_exp4_population(data_cache); cohort_audit=audit_prior_cohorts_if_present(population); write_exp4_manifest(manifest,population)
+    print(f"Declared population BCANw states: {len(manifest)*len(ENVIRONMENTS)*len(GEOMETRY_STATES)}")
+    print(f"Each state averages {EXP4_CONDITION_COUNT} normalized conditional flow states before BCANw.")
+
+    base_preflight=pd.DataFrame(); bcanw_preflight=pd.DataFrame()
+    if RUN_PREFLIGHT:
+        banner("Frozen-checkpoint intervention fidelity preflight"); base_preflight=run_preflight(manifest,data_cache)
+        banner("Real-checkpoint input-resolved BCANw sentinel preflight"); bcanw_preflight=run_exp4_geometry_preflight(manifest,data_cache)
+    if PREFLIGHT_ONLY:
+        return {"manifest":manifest,"inventory":inventory,"operator_selftest":operator,"geometry_operator_selftest":geometry_operator,
+                "base_preflight":base_preflight,"bcanw_preflight":bcanw_preflight,"cohort_audit":cohort_audit}
+
+    banner("Full population BCANw campaign")
+    completed_before=sum(exp4_done_path(r).exists() for r in manifest.run_id.astype(str)); remaining=len(manifest)-completed_before
+    eta=ETAReporter("EXP4 models",remaining); completed_now=0; wall_stop=False
+    for _,row in manifest.iterrows():
+        rid=str(row.run_id)
+        if RESUME and exp4_done_path(rid).exists(): continue
+        if not can_start_new_unit("EXP4 model",extra_buffer_min=GEOM_CONDITION_BUFFER_MIN): wall_stop=True; break
+        t0=time.perf_counter(); finished=run_exp4_one_model(row,data_cache[str(row.dataset)])
+        if not finished: wall_stop=True; break
+        completed_now+=1; eta.update(time.perf_counter()-t0,completed_now)
+    eta.finish(); tabs=aggregate_exp4_parts(manifest); n_done=sum(exp4_done_path(r).exists() for r in manifest.run_id.astype(str))
+    if n_done<len(manifest):
+        msg=["WORK II EXPERIMENT 4 PAUSED SAFELY",f"Completed model parts: {n_done}/{len(manifest)}",f"Software wall stop: {wall_stop}",
+             "Rerun the same file in another Slurm allocation; completed population geometry states will be reused.",f"Output: {OUTDIR}"]
+        (OUTDIR/"experiment_summary.txt").write_text("\n".join(msg)+"\n",encoding="utf-8"); print("\n"+"\n".join(msg))
+        return {"manifest":manifest,"tables":tabs,"incomplete":True,"completed_models":n_done}
+
+    banner("Validate and analyze RQ6")
+    validate_exp4_tables(tabs,manifest); delta=population_geometry_deltas(tabs["geometry_summary"])
+    tests=rq6_multiscale_tests(delta); assoc=hellinger_geometry_association(delta); vsum=geometry_validity_summary(tabs["geometry_validity"]); make_exp4_figures(delta)
+    elapsed=time.perf_counter()-start; gv=tabs["geometry_validity"]
+    summary=["WORK II EXPERIMENT 4 MULTISCALE FOLLOW-UP COMPLETE","RQ6: Does the multiscale organization also change under intervention?",
+             f"Device: {DEVICE}",f"Wall time: {human_time(elapsed)}",f"Frozen Experiment 1 checkpoints reused: {len(manifest)}/{len(manifest)}",
+             f"Conditions averaged per population state: {EXP4_CONDITION_COUNT}",f"Environments: {ENVIRONMENTS}",f"Intervention alpha: {EXP4_ALPHA}",
+             f"BCANw scales: {BCANW_SCALES}",f"Declared population BCANw states: {len(manifest)*len(ENVIRONMENTS)*len(GEOMETRY_STATES)}",
+             f"Geometry validity rows: {len(gv)}",f"Geometry states computed: {int(gv.geometry_computed.astype(bool).sum())}",
+             f"Scaling-credible states: {int(gv.scaling_credible.astype(bool).sum())}",f"Population geometric delta rows: {len(delta)}",
+             f"RQ6 statistical test rows: {len(tests)}",f"Output: {OUTDIR}"]
+    (OUTDIR/"experiment_summary.txt").write_text("\n".join(summary)+"\n",encoding="utf-8"); print("\n"+"\n".join(summary))
+    return {"manifest":manifest,"inventory":inventory,"data":data_cache,"operator_selftest":operator,"geometry_operator_selftest":geometry_operator,
+            "base_preflight":base_preflight,"bcanw_preflight":bcanw_preflight,"tables":tabs,"population_geometry_deltas":delta,
+            "RQ6_tests":tests,"hellinger_geometry_associations":assoc,"geometry_validity_summary":vsum,"cohort_audit":cohort_audit}
+
+
+if __name__=="__main__":
+    EXP4_RESULTS=run_experiment4()

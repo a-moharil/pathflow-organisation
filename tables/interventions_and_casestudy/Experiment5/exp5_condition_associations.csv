@@ -1,0 +1,121 @@
+dataset,environment,condition_index,stratum,condition_label,x_metric,y_metric,n_models,spearman_rho,p_raw,p_holm
+fmnist,clean,0,0,class 0 T-shirt/top,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.16723125564588978,0.13564194466832302,0.67820972334161511
+fmnist,clean,0,0,class 0 T-shirt/top,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.13864046973803071,0.21707569689992112,1
+fmnist,clean,0,0,class 0 T-shirt/top,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.0033423667570009032,0.97637503697532124,1
+fmnist,clean,1,1,class 1 Trouser,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,-0.08588527551942185,0.44584303644136158,1
+fmnist,clean,1,1,class 1 Trouser,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.13236224028906954,0.23882222818327006,1
+fmnist,clean,1,1,class 1 Trouser,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.042095754290876239,0.70904523016334542,1
+fmnist,clean,2,2,class 2 Pullover,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.1636404697380307,0.14436344150259223,0.67820972334161511
+fmnist,clean,2,2,class 2 Pullover,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.043902439024390248,0.69715159737486565,1
+fmnist,clean,2,2,class 2 Pullover,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.015650406504065038,0.88970866366723755,1
+fmnist,clean,3,3,class 3 Dress,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.36698283649503161,0.00075193949553232717,0.0075193949553232714
+fmnist,clean,3,3,class 3 Dress,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,0.0030036133694670277,0.97876887324224238,1
+fmnist,clean,3,3,class 3 Dress,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.22506775067750678,0.043370500031242737,0.43370500031242737
+fmnist,clean,4,4,class 4 Coat,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,-0.002145438121047877,0.9848340495122806,1
+fmnist,clean,4,4,class 4 Coat,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.12192863595302619,0.27820809603240376,1
+fmnist,clean,4,4,class 4 Coat,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.096680216802168012,0.39055483785242184,1
+fmnist,clean,5,5,class 5 Sandal,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.32224480578139114,0.0033482271244980478,0.030134044120482428
+fmnist,clean,5,5,class 5 Sandal,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,0.13186540198735319,0.24060534488837226,1
+fmnist,clean,5,5,class 5 Sandal,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.15794941282746161,0.15904008346726159,1
+fmnist,clean,6,6,class 6 Shirt,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.19767389340560074,0.076908450320252605,0.4614507019215156
+fmnist,clean,6,6,class 6 Shirt,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.21928635953026196,0.049193223336895298,0.49193223336895298
+fmnist,clean,6,6,class 6 Shirt,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.12734869015356817,0.25723778791770258,1
+fmnist,clean,7,7,class 7 Sneaker,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.22800361336946701,0.040639687774297432,0.32511750219437946
+fmnist,clean,7,7,class 7 Sneaker,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,0.1071364046973803,0.3411048580346383,1
+fmnist,clean,7,7,class 7 Sneaker,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.20196476964769647,0.070588954370717147,0.63530058933645428
+fmnist,clean,8,8,class 8 Bag,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.035094850948509483,0.75577003512928531,1
+fmnist,clean,8,8,class 8 Bag,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.13606594399277325,0.22581794019309426,1
+fmnist,clean,8,8,class 8 Bag,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.0244579945799458,0.82841640254402571,1
+fmnist,clean,9,9,class 9 Ankle/boot,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.2091463414634146,0.060952300026227868,0.42666610018359508
+fmnist,clean,9,9,class 9 Ankle/boot,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.18261065943992771,0.10274202255925886,0.92467820303332982
+fmnist,clean,9,9,class 9 Ankle/boot,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.0026648599819331527,0.98116289706625071,1
+fmnist,shifted,0,0,class 0 T-shirt/top,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.091937669376693773,0.41432333430842549,1
+fmnist,shifted,0,0,class 0 T-shirt/top,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.090221318879855461,0.42312778157514042,1
+fmnist,shifted,0,0,class 0 T-shirt/top,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.14121499548328817,0.20857502259634558,1
+fmnist,shifted,1,1,class 1 Trouser,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.01677958446251129,0.88180655216460524,1
+fmnist,shifted,1,1,class 1 Trouser,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.079765130984643176,0.47903390787517042,1
+fmnist,shifted,1,1,class 1 Trouser,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.014182475158084913,0.899997384727794,1
+fmnist,shifted,2,2,class 2 Pullover,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.081391147244805784,0.47008879350307264,1
+fmnist,shifted,2,2,class 2 Pullover,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.10115176151761517,0.36890643017287916,1
+fmnist,shifted,2,2,class 2 Pullover,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.057204155374887086,0.61197867491621294,1
+fmnist,shifted,3,3,class 3 Dress,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.38019421860885272,0.00046349950704282665,0.0046349950704282668
+fmnist,shifted,3,3,class 3 Dress,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.024909665763324297,0.82529743581308368,1
+fmnist,shifted,3,3,class 3 Dress,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.056300813008130078,0.61761882016978453,1
+fmnist,shifted,4,4,class 4 Coat,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.20532971996386629,0.065931202487068422,0.4665438507050052
+fmnist,shifted,4,4,class 4 Coat,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.14701897018970189,0.19028562088102355,1
+fmnist,shifted,4,4,class 4 Coat,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.13658536585365855,0.22403460212132417,1
+fmnist,shifted,5,5,class 5 Sandal,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.21126919602529359,0.05831798133812565,0.4665438507050052
+fmnist,shifted,5,5,class 5 Sandal,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,0.23748870822041557,0.032775614916735848,0.32775614916735851
+fmnist,shifted,5,5,class 5 Sandal,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.19643179765130983,0.078819843138600035,0.78819843138600032
+fmnist,shifted,6,6,class 6 Shirt,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.25024841915085821,0.024245881090600142,0.21821292981540127
+fmnist,shifted,6,6,class 6 Shirt,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.19636404697380305,0.078925181350491008,0.67016223271304021
+fmnist,shifted,6,6,class 6 Shirt,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.1296973803071364,0.24849376763884815,1
+fmnist,shifted,7,7,class 7 Sneaker,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.1430442637759711,0.20268066661450226,1
+fmnist,shifted,7,7,class 7 Sneaker,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,0.027055103884372177,0.81052004547592427,1
+fmnist,shifted,7,7,class 7 Sneaker,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.11404697380307136,0.31068697451875771,1
+fmnist,shifted,8,8,class 8 Bag,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.11379855465221318,0.31174901414239514,1
+fmnist,shifted,8,8,class 8 Bag,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.16142728093947606,0.14994506248328093,1
+fmnist,shifted,8,8,class 8 Bag,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.11951219512195121,0.28791522653738688,1
+fmnist,shifted,9,9,class 9 Ankle/boot,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.19275067750677508,0.084707887480480124,0.50824732488288071
+fmnist,shifted,9,9,class 9 Ankle/boot,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.19929990966576333,0.07446247030144891,0.67016223271304021
+fmnist,shifted,9,9,class 9 Ankle/boot,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.082768744354110205,0.46258169421703321,1
+mpi3d,clean,0,0,horizontal_axis 0,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.11924119241192412,0.28901768110945908,1
+mpi3d,clean,0,0,horizontal_axis 0,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.21937669376693766,0.049097528875690459,0.31076140865822899
+mpi3d,clean,0,0,horizontal_axis 0,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.085230352303523021,0.44933222173928389,1
+mpi3d,clean,1,4,horizontal_axis 4,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.031752484191508577,0.77840238750421642,1
+mpi3d,clean,1,4,horizontal_axis 4,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.37850045167118329,0.00049372645698914921,0.0049372645698914919
+mpi3d,clean,1,4,horizontal_axis 4,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.03674345076784101,0.74468071670698444,1
+mpi3d,clean,2,8,horizontal_axis 8,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.084598012646793133,0.45271545608925512,1
+mpi3d,clean,2,8,horizontal_axis 8,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.16657633242999095,0.13720215595350099,0.68601077976750502
+mpi3d,clean,2,8,horizontal_axis 8,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.093202348690153577,0.40790442168408214,1
+mpi3d,clean,3,12,horizontal_axis 12,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,-0.12070912375790423,0.2830793663590061,1
+mpi3d,clean,3,12,horizontal_axis 12,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.28222673893405598,0.010689725911449148,0.096207533203042331
+mpi3d,clean,3,12,horizontal_axis 12,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.21535682023486899,0.053506888433503277,0.3651293017198774
+mpi3d,clean,4,16,horizontal_axis 16,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.018970189701897018,0.86650999504249304,1
+mpi3d,clean,4,16,horizontal_axis 16,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.22400632339656729,0.044394486951175566,0.31076140865822899
+mpi3d,clean,4,16,horizontal_axis 16,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.10356820234869014,0.35751859709475275,1
+mpi3d,clean,5,20,horizontal_axis 20,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.19442186088527552,0.081992932123324175,0.81992932123324169
+mpi3d,clean,5,20,horizontal_axis 20,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.053794037940379402,0.63338566068385749,1
+mpi3d,clean,5,20,horizontal_axis 20,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.37409665763324301,0.00058094448049851805,0.0058094448049851805
+mpi3d,clean,6,24,horizontal_axis 24,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,-0.013888888888888886,0.90205716397771096,1
+mpi3d,clean,6,24,horizontal_axis 24,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.029652213188798553,0.79272032025838768,1
+mpi3d,clean,6,24,horizontal_axis 24,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.21655374887082204,0.052161328817125339,0.3651293017198774
+mpi3d,clean,7,28,horizontal_axis 28,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.043292682926829265,0.70115771431265095,1
+mpi3d,clean,7,28,horizontal_axis 28,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,0.015063233965672988,0.89382206328605818,1
+mpi3d,clean,7,28,horizontal_axis 28,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.30612014453477865,0.0054473386398779097,0.043578709119023278
+mpi3d,clean,8,32,horizontal_axis 32,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.070031616982836498,0.53443407851614544,1
+mpi3d,clean,8,32,horizontal_axis 32,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,0.023328816621499552,0.83622533569084856,1
+mpi3d,clean,8,32,horizontal_axis 32,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.31754742547425474,0.0038687277736933869,0.034818549963240485
+mpi3d,clean,9,36,horizontal_axis 36,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,-0.053229448961156278,0.63695973732409561,1
+mpi3d,clean,9,36,horizontal_axis 36,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.23760162601626017,0.032690307619089649,0.2615224609527172
+mpi3d,clean,9,36,horizontal_axis 36,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.1482836495031617,0.18645904307856068,0.93229521539280336
+mpi3d,shifted,0,0,horizontal_axis 0,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.33188798554652216,0.0024711168613834465,0.024711168613834465
+mpi3d,shifted,0,0,horizontal_axis 0,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.24767389340560073,0.02579559567735093,0.18056916974145651
+mpi3d,shifted,0,0,horizontal_axis 0,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.096318879855465209,0.3923366405363512,1
+mpi3d,shifted,1,4,horizontal_axis 4,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.062782294489611562,0.57765856023051976,1
+mpi3d,shifted,1,4,horizontal_axis 4,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.25505871725383922,0.02156188838225909,0.17249510705807272
+mpi3d,shifted,1,4,horizontal_axis 4,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.12445799457994579,0.26828406618383749,1
+mpi3d,shifted,2,8,horizontal_axis 8,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.089159891598915991,0.42862597270031644,1
+mpi3d,shifted,2,8,horizontal_axis 8,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.15110659439927732,0.1781193859799278,0.38597458984291855
+mpi3d,shifted,2,8,horizontal_axis 8,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.074345076784101183,0.50949794616043609,1
+mpi3d,shifted,3,12,horizontal_axis 12,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.10634598012646794,0.34469936886903074,1
+mpi3d,shifted,3,12,horizontal_axis 12,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.22822944896115627,0.040435684270719058,0.20217842135359529
+mpi3d,shifted,3,12,horizontal_axis 12,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.0037488708220415538,0.97350271078981021,1
+mpi3d,shifted,4,16,horizontal_axis 16,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.11813459801264678,0.29354829273148064,1
+mpi3d,shifted,4,16,horizontal_axis 16,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.26766034327009935,0.015702603529238444,0.14274737835820969
+mpi3d,shifted,4,16,horizontal_axis 16,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.086991869918699199,0.43998206177108334,1
+mpi3d,shifted,5,20,horizontal_axis 20,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.25336495031616985,0.022476478541214102,0.20228830687092691
+mpi3d,shifted,5,20,horizontal_axis 20,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.17023486901535684,0.12865819661430619,0.38597458984291855
+mpi3d,shifted,5,20,horizontal_axis 20,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.025609756097560974,0.82046839519070658,1
+mpi3d,shifted,6,24,horizontal_axis 24,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,-0.10772357723577235,0.33844994714823973,1
+mpi3d,shifted,6,24,horizontal_axis 24,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.21833785004516712,0.050207313997531137,0.20217842135359529
+mpi3d,shifted,6,24,horizontal_axis 24,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.070392953929539301,0.53232224163320208,1
+mpi3d,shifted,7,28,horizontal_axis 28,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.083242999096657638,0.46001254447525231,1
+mpi3d,shifted,7,28,horizontal_axis 28,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.11343721770551038,0.31329798466006237,0.38597458984291855
+mpi3d,shifted,7,28,horizontal_axis 28,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.08775971093044263,0.43594087822908201,1
+mpi3d,shifted,8,32,horizontal_axis 32,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.012217705510388437,0.91379398176470739,1
+mpi3d,shifted,8,32,horizontal_axis 32,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.24758355916892502,0.025851463044889667,0.18056916974145651
+mpi3d,shifted,8,32,horizontal_axis 32,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,0.0080849141824751586,0.94289284683852104,1
+mpi3d,shifted,9,36,horizontal_axis 36,fieldB_flow_mass_advantage_occ_minus_param,manifestation_adv_occ_minus_param,81,0.051716350496838301,0.64657901777360038,1
+mpi3d,shifted,9,36,horizontal_axis 36,fieldB_flow_mass_advantage_occ_minus_param,path_hellinger_adv_occ_minus_param,81,-0.27134146341463417,0.014274737835820969,0.14274737835820969
+mpi3d,shifted,9,36,horizontal_axis 36,fieldB_flow_mass_advantage_occ_minus_param,fieldA_post_l1_occ_minus_param,81,-0.095912375790424581,0.39434693715443081,1

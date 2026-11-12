@@ -1,0 +1,11 @@
+check,error,tolerance,passed
+alpha_0.00_selected_gate,0.0,0.0,True
+alpha_0.00_unselected_gate,0.0,0.0,True
+alpha_0.10_selected_gate,0.0,0.0,True
+alpha_0.10_unselected_gate,0.0,0.0,True
+alpha_0.25_selected_gate,0.0,0.0,True
+alpha_0.25_unselected_gate,0.0,0.0,True
+alpha_0.25_stronger_than_previous,0.0,0.0,True
+alpha_0.50_selected_gate,0.0,0.0,True
+alpha_0.50_unselected_gate,0.0,0.0,True
+alpha_0.50_stronger_than_previous,0.0,0.0,True

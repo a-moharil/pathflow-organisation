@@ -1,0 +1,13 @@
+{
+  "source": null,
+  "fallback": true,
+  "selection_features": [
+    "depth",
+    "actual_params",
+    "width_mean",
+    "width_cv",
+    "shape",
+    "curvature"
+  ],
+  "n_candidates": 12
+}
