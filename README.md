@@ -272,13 +272,6 @@ Every summary and test table derived from them is in `tables/`.
 
 **Paths in the tables.** Some tables record the location of checkpoints and figures on the computing cluster. The cluster-specific part of these paths has been replaced by `<PROJECT_ROOT>`.
 
----
-
-## Computational cost
-
-The MLP S1 run recorded in `scripts/MLP/structural/S1/logs/` took 5 h 07 min on one NVIDIA L4 GPU with 4 CPU cores, with a peak memory of 22.8 GB. The other phases train between 48 and 2,304 networks each and need correspondingly longer. The CNN phases and the intervention experiments are designed for SLURM clusters and resume after interruption.
-
----
 
 ## Notes
 
