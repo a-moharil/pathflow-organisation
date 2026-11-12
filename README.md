@@ -19,7 +19,7 @@ The first two levels are studied over controlled populations that vary one facto
 | S3 | Optimiser | `scripts/MLP/structural/S3` | `scripts/CNN/structural/S3` |
 | C1 | Architecture | `scripts/MLP/conditional/C1` | `scripts/CNN/conditional/C1` |
 | C2 | Environment (and task, for MLPs) | `scripts/MLP/conditional/C2` | `scripts/CNN/conditional/C2` |
-| C3 | Optimiser | not included in this release | `scripts/CNN/conditional/C3` |
+| C3 | Optimiser | not included here (<50MB), on Zenodo | `scripts/CNN/conditional/C3` |
 
 Two further parts use real data:
 
